@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Crops List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+
+<h1 class="mb-4">My Crops</h1>
+
+<a th:href="@{/crops/new}" class="btn btn-primary mb-3">Add New Crop</a>
+<a th:href="@{/farms}" class="btn btn-info mb-3">Back to Farms</a>
+
+<table class="table table-striped">
+    <thead class="table-dark">
+    <tr>
+        <th>ID</th>
+        <th>Crop Name</th>
+        <th>Type</th>
+        <th>Planted On</th>
+        <th>Farm</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="crop : ${crops}">
+        <td th:text="${crop.id}"></td>
+        <td th:text="${crop.name}"></td>
+        <td th:text="${crop.type}"></td>
+        <td th:text="${#temporals.format(crop.plantingDate, 'dd-MM-yyyy')}"></td>
+        <td th:text="${crop.farm != null} ? ${crop.farm.name} : '—'"></td>
+        <td>
+            <a th:href="@{/crops/edit/{id}(id=${crop.id})}" class="btn btn-sm btn-warning">Edit</a>
+            <a th:href="@{/crops/delete/{id}(id=${crop.id})}"
+               onclick="return confirm('Delete this crop?')" class="btn btn-sm btn-danger">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

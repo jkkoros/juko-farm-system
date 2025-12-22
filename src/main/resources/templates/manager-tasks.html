@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Manager Tasks - Juko Coffee Factory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .main-container {
+            max-width: 90vw;
+            width: 1100px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            padding: 50px 40px;
+            text-align: center;
+        }
+        .role-card {
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 40px 20px;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .role-card:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-15px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .role-card i {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+        }
+        .back-btn {
+            margin-top: 40px;
+        }
+        @media (max-width: 768px) {
+            .role-card { padding: 30px 15px; }
+            .role-card i { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="header mb-5">
+        <h1 class="fw-bold display-4">MANAGER TASKS</h1>
+        <p class="lead fs-3">Juko Coffee Factory</p>
+        <p class="fs-4">Current Season: <strong th:text="${selectedSeason.seasonName}"></strong></p>
+        <hr class="border-light opacity-50 w-50 mx-auto my-4">
+        <p class="fs-3">Please select your task</p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-5 justify-content-center">
+
+        <!-- REGISTER FARMER -->
+        <div class="col">
+            <a th:href="@{/farmers/register}" class="text-white text-decoration-none">
+                <div class="role-card">
+                    <i class="bi bi-person-plus-fill text-success"></i>
+                    <h3>Register Farmer</h3>
+                    <p>Add new farmer to the system</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- REGISTER EMPLOYEE -->
+        <div class="col">
+            <a th:href="@{/employees/register}" class="text-white text-decoration-none">
+                <div class="role-card">
+                    <i class="bi bi-person-badge-fill text-primary"></i>
+                    <h3>Register Employee</h3>
+                    <p>Add new staff member</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- FARMERS PAYMENT -->
+        <div class="col">
+            <a th:href="@{/clerk/payment-report}" class="text-white text-decoration-none">
+                <div class="role-card">
+                    <i class="bi bi-cash-stack text-success"></i>
+                    <h3>Farmers Payment</h3>
+                    <p>View and process farmer payments</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- EMPLOYEE PAYMENT -->
+        <div class="col">
+            <a th:href="@{/employees/all}" class="text-white text-decoration-none">
+                <div class="role-card">
+                    <i class="bi bi-wallet2 text-warning"></i>
+                    <h3>Employee Payment</h3>
+                    <p>Record and view salary payments</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- BILLS & EXPENSES (NOW ACTIVE) -->
+        <div class="col">
+            <a th:href="@{/clerk/record-expense}" class="text-white text-decoration-none">
+                <div class="role-card">
+                    <i class="bi bi-receipt text-danger"></i>
+                    <h3>Bills & Expenses</h3>
+                    <p>Record factory costs</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- PAYROLL REPORT -->
+        <div class="col">
+            <a th:href="@{/clerk/payroll-report}" class="text-white text-decoration-none">
+                <div class="role-card">
+                    <i class="bi bi-file-earmark-spreadsheet text-warning"></i>
+                    <h3>Payroll Report</h3>
+                    <p>Employee salary summary</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- PROFIT & LOSS (NEW) -->
+        <div class="col">
+            <a th:href="@{/clerk/profit-loss}" class="text-white text-decoration-none">
+                <div class="role-card">
+                    <i class="bi bi-graph-up-arrow text-success"></i>
+                    <h3>Profit & Loss</h3>
+                    <p>Financial overview</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- LOAN REPORT -->
+        <div class="col">
+            <a th:href="@{/manager/reports/loans}" class="text-white text-decoration-none">
+                <div class="role-card">
+                    <i class="bi bi-bar-chart-line text-info"></i>
+                    <h3>Loan Report</h3>
+                    <p>View loan status and repayments</p>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- BACK BUTTON -->
+    <div class="back-btn">
+        <a th:href="@{/dashboard}" class="btn btn-light btn-lg px-5 shadow-lg">
+            <i class="bi bi-arrow-left-circle me-2"></i> Back to Main Dashboard
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

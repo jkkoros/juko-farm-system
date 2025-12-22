@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loan Report - Juko Coffee Factory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body { background: linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; }
+        .card { max-width: 1400px; margin: 40px auto; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .header { background: #1e3a8a; color: white; padding: 30px; text-align: center; border-radius: 25px 25px 0 0; }
+        .table th { background: #1e3a8a; color: white; }
+        .stat-card { background: rgba(255,255,255,0.15); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; }
+        .stat-value { font-size: 2.2rem; font-weight: bold; }
+        .loan-alert { background: rgba(220,53,69,0.2); border-left: 5px solid #dc3545; }
+        .outstanding-positive { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="header">
+        <h1 class="display-4 fw-bold">LOAN REPORT</h1>
+        <p class="fs-3">Current Season: <strong th:text="${currentSeason.seasonName}">2025/2026</strong></p>
+    </div>
+
+    <div class="card-body p-5 bg-white">
+        <h2 class="text-center mb-5 text-primary">Loan Summary</h2>
+
+        <div class="row g-4 mb-5 justify-content-center">
+            <div class="col-lg-4 col-md-6">
+                <div class="stat-card">
+                    <i class="bi bi-wallet2 text-info" style="font-size: 4rem;"></i>
+                    <h4>Total Loans Issued</h4>
+                    <div class="stat-value" th:text="'KES ' + ${#numbers.formatInteger(totalIssued, 0, 'COMMA')}">0</div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="stat-card">
+                    <i class="bi bi-cash-stack text-success" style="font-size: 4rem;"></i>
+                    <h4>Total Repaid</h4>
+                    <div class="stat-value text-success" th:text="'KES ' + ${#numbers.formatInteger(totalRepaid, 0, 'COMMA')}">0</div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="stat-card loan-alert">
+                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
+                    <h4>Outstanding Debt</h4>
+                    <div class="stat-value text-danger" th:text="'KES ' + ${#numbers.formatInteger(outstanding, 0, 'COMMA')}">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-5">
+            <h3>Farmers with Outstanding Debt: 
+                <span class="badge bg-danger fs-3" th:text="${farmersWithDebt}">0</span>
+            </h3>
+        </div>
+
+        <!-- PDF Export Button -->
+        <div class="text-end mb-3">
+            <a th:href="@{~/manager/reports/loans/pdf}" class="btn btn-danger btn-lg">
+                <i class="bi bi-file-earmark-pdf"></i> Export to PDF
+            </a>
+        </div>
+
+        <!-- Detailed Loan Table -->
+        <h3 class="text-center mb-4 text-dark">Detailed Input Loans</h3>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Farmer ID</th>
+                        <th>Full Name</th>
+                        <th>Phone</th>
+                        <th>Item Name</th>
+                        <th>Loan Amount</th>
+                        <th>Repaid</th>
+                        <th>Outstanding</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="detail : ${loanDetails}">
+                        <td th:text="${#temporals.format(detail.loan.loanDate, 'dd MMM yyyy')}">15 Dec 2025</td>
+                        <td><strong th:text="${detail.farmer.farmerId}">001</strong></td>
+                        <td th:text="${detail.farmer.buildFullName()}">John Doe</td>
+                        <td th:text="${detail.farmer.phone ?: '—'}">—</td>
+                        <td th:text="${detail.loan.itemName}">Fertilizer</td>
+                        <td th:text="'KES ' + ${#numbers.formatInteger(detail.loanAmount, 0, 'COMMA')}">50,000</td>
+                        <td th:text="'KES ' + ${#numbers.formatInteger(detail.repaid, 0, 'COMMA')}">20,000</td>
+                        <td class="outstanding-positive" th:text="'KES ' + ${#numbers.formatInteger(detail.outstanding, 0, 'COMMA')}">30,000</td>
+                        <td>
+                            <a th:href="@{~/clerk/payment-statement/} + ${detail.farmer.farmerId}"
+                               class="btn btn-sm btn-info">
+                                <i class="bi bi-file-earmark-text"></i> Statement
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${loanDetails == null or #lists.isEmpty(loanDetails)}">
+                        <td colspan="9" class="text-center py-5 text-muted">
+                            <h4>No input loans issued this season</h4>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot class="table-primary">
+                    <tr>
+                        <td colspan="5"><strong>TOTALS</strong></td>
+                        <td><strong th:text="'KES ' + ${#numbers.formatInteger(totalIssued, 0, 'COMMA')}"></strong></td>
+                        <td><strong th:text="'KES ' + ${#numbers.formatInteger(totalRepaid, 0, 'COMMA')}"></strong></td>
+                        <td><strong class="text-danger" th:text="'KES ' + ${#numbers.formatInteger(outstanding, 0, 'COMMA')}"></strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-5">
+            <a th:href="@{~/manager/dashboard}" class="btn btn-light btn-lg px-5 shadow-lg">
+                <i class="bi bi-arrow-left-circle me-2"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

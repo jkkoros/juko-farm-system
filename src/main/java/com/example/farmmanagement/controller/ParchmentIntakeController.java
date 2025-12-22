@@ -3,8 +3,6 @@ package com.example.farmmanagement.controller;
 import com.example.farmmanagement.model.*;
 import com.example.farmmanagement.repository.*;
 import com.example.farmmanagement.service.SeasonService;
-import com.example.farmmanagement.service.SettingsService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,16 +13,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Controller
-@RequestMapping("/clerk/cherry-intake")
-public class CherryIntakeController {
+@RequestMapping("/clerk/parchment-recording")
+public class ParchmentIntakeController {
 
-    @Autowired private CherryDeliveryRepository deliveryRepo;
+    @Autowired private ParchmentDeliveryRepository deliveryRepo;
     @Autowired private FarmerRepository farmerRepo;
     @Autowired private SeasonService seasonService;
-    @Autowired private CherryTransferRepository transferRepo;
     @Autowired private FarmInputLoanRepository loanRepo;
     @Autowired private LoanRepaymentRepository repaymentRepo;
-    @Autowired private SettingsService settingsService;
 
     // MAIN PAGE
     @GetMapping
@@ -35,7 +31,7 @@ public class CherryIntakeController {
                 ? seasonService.getSeasonByName(seasonName)
                 : seasonService.getCurrentSeason();
 
-        CherryDelivery delivery = new CherryDelivery();
+        ParchmentDelivery delivery = new ParchmentDelivery();
         delivery.setDeliveryDate(LocalDate.now());
 
         if (searchId != null && !searchId.trim().isEmpty()) {
@@ -53,7 +49,7 @@ public class CherryIntakeController {
             }
         }
 
-        List<CherryDelivery> deliveries = deliveryRepo.findBySeasonOrderByIdDesc(selectedSeason);
+        List<ParchmentDelivery> deliveries = deliveryRepo.findBySeasonOrderByIdDesc(selectedSeason);
 
         model.addAttribute("deliveries", deliveries);
         model.addAttribute("delivery", delivery);
@@ -62,17 +58,17 @@ public class CherryIntakeController {
         model.addAttribute("totalToday", deliveryRepo.getTotalKilosBySeason(selectedSeason));
         model.addAttribute("farmersToday", deliveryRepo.getUniqueFarmersBySeason(selectedSeason));
 
-        return "cherry-intake";
+        return "parchment-intake";
     }
 
     // RECORD DELIVERY + LOAN REPAYMENT DEDUCTION
     @PostMapping("/record")
-    public String recordDelivery(@ModelAttribute CherryDelivery delivery, RedirectAttributes ra) {
+    public String recordDelivery(@ModelAttribute ParchmentDelivery delivery, RedirectAttributes ra) {
         delivery.setSeason(seasonService.getCurrentSeason());
         Farmer farmer = farmerRepo.findByFarmerId(delivery.getFarmerId());
         if (farmer == null) {
             ra.addFlashAttribute("error", "Farmer not found!");
-            return "redirect:/clerk/cherry-intake";
+            return "redirect:/clerk/parchment-recording";
         }
         if (delivery.getFarmerName() == null || delivery.getFarmerName().isBlank()) {
             delivery.setFarmerName(farmer.buildFullName());
@@ -86,17 +82,17 @@ public class CherryIntakeController {
         delivery.setCumulativeKg(previous + delivery.getKilosToday());
         deliveryRepo.save(delivery);
 
-        // === LOAN REPAYMENT DEDUCTION LOGIC (CONFIGURABLE) ===
+        // === LOAN REPAYMENT DEDUCTION LOGIC ===
         double outstandingDebt = loanRepo.getOutstandingDebtByFarmerId(delivery.getFarmerId());
         if (outstandingDebt > 0) {
-            // Cherry price per kg in KES (adjust as needed)
-            double cherryPricePerKg = 80.0;
-            double deliveryValue = delivery.getKilosToday() * cherryPricePerKg;
+            // Parchment price per kg in KES (adjust to your actual rate)
+            double parchmentPricePerKg = 200.0; // Example: KES 200 per kg
+            double deliveryValue = delivery.getKilosToday() * parchmentPricePerKg;
 
-            // Get configurable deduction percentage from SettingsService
-            double deductionPercent = settingsService.getLoanDeductionPercent() / 100.0; // e.g., 20% → 0.20
-
+            // Deduction percentage (e.g., 20% of delivery value goes to loan repayment)
+            double deductionPercent = 0.20;
             double possibleDeduction = deliveryValue * deductionPercent;
+
             double actualDeduction = Math.min(possibleDeduction, outstandingDebt);
 
             if (actualDeduction > 0) {
@@ -106,7 +102,7 @@ public class CherryIntakeController {
                 repayment.setAmountRepaid(actualDeduction);
                 repayment.setPreviousBalance(outstandingDebt);
                 repayment.setNewBalance(outstandingDebt - actualDeduction);
-                repayment.setSource("CHERRY");
+                repayment.setSource("PARCHMENT");
                 repayment.setSourceId(delivery.getId());
                 repayment.setSeason(delivery.getSeason());
                 repaymentRepo.save(repayment);
@@ -117,86 +113,23 @@ public class CherryIntakeController {
             }
         }
 
-        ra.addFlashAttribute("successMessage", "Delivery recorded successfully!");
-        return "redirect:/clerk/cherry-intake";
+        ra.addFlashAttribute("successMessage", "Parchment delivery recorded successfully!");
+        return "redirect:/clerk/parchment-recording";
     }
 
     // PRINT RECEIPT
     @GetMapping("/receipt/{id}")
     public String printReceipt(@PathVariable Long id, Model model) {
-        CherryDelivery d = deliveryRepo.findById(id).orElse(null);
-        if (d == null) return "redirect:/clerk/cherry-intake";
+        ParchmentDelivery d = deliveryRepo.findById(id).orElse(null);
+        if (d == null) return "redirect:/clerk/parchment-recording";
 
         model.addAttribute("d", d);
         model.addAttribute("cumulative", deliveryRepo.getTotalKilosByFarmerId(d.getFarmerId()));
 
-        // Optional: pass outstanding debt or recent repayment for receipt
+        // Optional: pass outstanding debt for receipt display
         double outstanding = loanRepo.getOutstandingDebtByFarmerId(d.getFarmerId());
         model.addAttribute("outstandingDebt", outstanding);
 
-        return "cherry-receipt";
-    }
-
-    // TRANSFER PAGE
-    @GetMapping("/transfer")
-    public String showTransferForm(Model model) {
-        if (!model.containsAttribute("transfer")) {
-            CherryTransfer transfer = new CherryTransfer();
-            transfer.setTransferDate(LocalDate.now());
-            model.addAttribute("transfer", transfer);
-        }
-
-        List<CherryTransfer> transfers = transferRepo.findAllByOrderByTransferDateDescIdDesc();
-        transfers.forEach(t -> {
-            Farmer from = farmerRepo.findByFarmerId(t.getFromFarmerId());
-            Farmer to = farmerRepo.findByFarmerId(t.getToFarmerId());
-            t.setNotes((t.getNotes() != null ? t.getNotes() + " " : "") +
-                       "From: " + (from != null ? from.buildFullName() : "Unknown") +
-                       " | To: " + (to != null ? to.buildFullName() : "Unknown"));
-        });
-
-        model.addAttribute("transfers", transfers);
-        return "cherry-transfer";
-    }
-
-    // PROCESS TRANSFER
-    @PostMapping("/transfer")
-    public String processTransfer(@ModelAttribute CherryTransfer transfer, RedirectAttributes ra) {
-        Farmer from = farmerRepo.findByFarmerId(transfer.getFromFarmerId());
-        if (from == null) {
-            ra.addFlashAttribute("error", "From Farmer ID not found!");
-            ra.addFlashAttribute("transfer", transfer);
-            return "redirect:/clerk/cherry-intake/transfer";
-        }
-        Farmer to = farmerRepo.findByFarmerId(transfer.getToFarmerId());
-        if (to == null) {
-            ra.addFlashAttribute("error", "To Farmer ID not found!");
-            ra.addFlashAttribute("transfer", transfer);
-            return "redirect:/clerk/cherry-intake/transfer";
-        }
-
-        double available = deliveryRepo.getTotalKilosByFarmerId(transfer.getFromFarmerId());
-        if (transfer.getKilosTransferred() > available) {
-            ra.addFlashAttribute("error", "Not enough kg! Only " + available + " kg available.");
-            ra.addFlashAttribute("transfer", transfer);
-            return "redirect:/clerk/cherry-intake/transfer";
-        }
-
-        transferRepo.save(transfer);
-        ra.addFlashAttribute("successMessage", "Transfer completed successfully!");
-        return "redirect:/clerk/cherry-intake/transfer";
-    }
-
-    // UNDO TRANSFER
-    @PostMapping("/transfer/undo/{id}")
-    public String undoTransfer(@PathVariable Long id, RedirectAttributes ra) {
-        CherryTransfer t = transferRepo.findById(id).orElse(null);
-        if (t == null) {
-            ra.addFlashAttribute("error", "Transfer record not found!");
-            return "redirect:/clerk/cherry-intake/transfer";
-        }
-        transferRepo.delete(t);
-        ra.addFlashAttribute("successMessage", "Transfer undone successfully!");
-        return "redirect:/clerk/cherry-intake/transfer";
+        return "parchment-receipt";
     }
 }

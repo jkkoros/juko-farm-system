@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Clerks Panel - Juko Factory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #721c24, #f8d7da); min-height: 100vh; }
+        .card { max-width: 1000px; margin: 40px auto; border-radius: 25px; }
+        .header { background: #721c24; color: white; padding: 30px; text-align: center; border-radius: 25px 25px 0 0; }
+    </style>
+</head>
+<body>
+<div class="card shadow-lg">
+    <div class="header">
+        <h1 class="display-5 fw-bold">CLERKS & USERS PANEL</h1>
+        <p class="fs-4">Admin Only</p>
+    </div>
+    <div class="card-body p-5 bg-white text-dark">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-danger">
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.id}"></td>
+                        <td th:text="${user.username}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td>
+                            <form th:action="@{/admin/change-role/{id}(id=${user.id})}" method="post" class="d-inline">
+                                <select name="role" onchange="this.form.submit()" class="form-select form-select-sm">
+                                    <option value="ADMIN" th:selected="${user.role == 'ADMIN'}">ADMIN</option>
+                                    <option value="CLERK" th:selected="${user.role == 'CLERK'}">CLERK</option>
+                                    <option value="FARMER" th:selected="${user.role == 'FARMER'}">FARMER</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <form th:action="@{/admin/delete/{id}(id=${user.id})}" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete user [[${user.username}]]?')">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center mt-4">
+            <a th:href="@{/dashboard}" class="btn btn-light btn-lg">← Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

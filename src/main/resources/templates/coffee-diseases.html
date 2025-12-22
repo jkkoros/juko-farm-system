@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Coffee Pests & Diseases</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { 
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%); 
+            min-height: 100vh; 
+            color: white; 
+        }
+        .card-disease {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .card-disease:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+        .symptom-list { line-height: 1.8; }
+        .control-list { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg" style="background: rgba(0,0,0,0.3); backdrop-filter: blur(10px);">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white fw-bold fs-3" th:href="@{/coffee}">
+            <i class="bi bi-cup-straw"></i> JUKO COFFEE MANAGEMENT
+        </a>
+        <div class="d-flex align-items-center text-white">
+            <a th:href="@{/coffee}" class="btn btn-outline-light me-2">Back to Coffee Hub</a>
+            <a th:href="@{/dashboard}" class="btn btn-outline-light">Dashboard</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Coffee Pests & Diseases</h1>
+        <p class="lead fs-3">Early detection and effective control for healthy trees</p>
+        <p class="fs-5 opacity-75">Common threats in Kenyan Arabica plantations</p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Coffee Berry Disease (CBD) -->
+        <div class="col-lg-6">
+            <div class="card card-disease p-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-1 me-3"></i>
+                    <h3 class="fw-bold">Coffee Berry Disease (CBD)</h3>
+                </div>
+                <h5>Symptoms</h5>
+                <ul class="symptom-list">
+                    <li>Dark sunken lesions on green berries</li>
+                    <li>Berries turn black and mummify</li>
+                    <li>Orange-pink spores on infected berries</li>
+                    <li>Premature berry drop</li>
+                </ul>
+                <h5 class="mt-4">Control Measures</h5>
+                <div class="control-list">
+                    <strong>Cultural:</strong> Prune for good aeration, remove mummified berries<br>
+                    <strong>Chemical:</strong> Copper-based fungicides (e.g., Nordox, Kocide) at flowering<br>
+                    <strong>Timing:</strong> Spray at early flowering and repeat every 3–4 weeks during wet seasons<br>
+                    <strong>Resistant varieties:</strong> Batian, Ruiru 11
+                </div>
+            </div>
+        </div>
+
+        <!-- Coffee Leaf Rust (CLR) -->
+        <div class="col-lg-6">
+            <div class="card card-disease p-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-virus text-warning fs-1 me-3"></i>
+                    <h3 class="fw-bold">Coffee Leaf Rust (CLR)</h3>
+                </div>
+                <h5>Symptoms</h5>
+                <ul class="symptom-list">
+                    <li>Yellow-orange powdery spots on underside of leaves</li>
+                    <li>Leaves turn yellow and fall prematurely</li>
+                    <li>Severe defoliation reduces yield</li>
+                </ul>
+                <h5 class="mt-4">Control Measures</h5>
+                <div class="control-list">
+                    <strong>Cultural:</strong> Proper spacing, pruning for light penetration<br>
+                    <strong>Chemical:</strong> Triazole fungicides (e.g., Tebuconazole, Hexaconazole)<br>
+                    <strong>Timing:</strong> Apply at onset of long rains and repeat as needed<br>
+                    <strong>Resistant varieties:</strong> Batian, Ruiru 11 (highly resistant)
+                </div>
+            </div>
+        </div>
+
+        <!-- Coffee Berry Borer (CBB) -->
+        <div class="col-lg-6">
+            <div class="card card-disease p-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-bug-fill text-dark fs-1 me-3"></i>
+                    <h3 class="fw-bold">Coffee Berry Borer</h3>
+                </div>
+                <h5>Symptoms</h5>
+                <ul class="symptom-list">
+                    <li>Small hole at the tip of cherry</li>
+                    <li>Tunnels inside berry with larvae</li>
+                    <li>Damaged beans (low quality)</li>
+                </ul>
+                <h5 class="mt-4">Control Measures</h5>
+                <div class="control-list">
+                    <strong>Cultural:</strong> Timely & complete harvesting, strip picking<br>
+                    <strong>Sanitation:</strong> Remove all fallen and leftover berries<br>
+                    <strong>Chemical:</strong> Insecticides only if infestation >5% (consult extension officer)<br>
+                    <strong>Traps:</strong> Brocap or alcohol-based traps
+                </div>
+            </div>
+        </div>
+
+        <!-- Antestia Bug / Potato Taste Bug -->
+        <div class="col-lg-6">
+            <div class="card card-disease p-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-shield-bug text-success fs-1 me-3"></i>
+                    <h3 class="fw-bold">Antestia Bug</h3>
+                </div>
+                <h5>Symptoms</h5>
+                <ul class="symptom-list">
+                    <li>Black spots on cherries</li>
+                    <li>"Potato taste" defect in cup</li>
+                    <li>Deformed or aborted berries</li>
+                </ul>
+                <h5 class="mt-4">Control Measures</h5>
+                <div class="control-list">
+                    <strong>Cultural:</strong> Encourage natural enemies (birds, wasps)<br>
+                    <strong>Monitoring:</strong> Scout weekly during flowering & fruit development<br>
+                    <strong>Chemical:</strong> Pyrethroids if population high<br>
+                    <strong>Shade management:</strong> Avoid excessive shade
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="alert alert-info mt-5 text-dark">
+        <h5>💡 General Prevention Tips</h5>
+        <ul>
+            <li>Plant resistant varieties: Batian and Ruiru 11 offer excellent resistance to CBD and CLR</li>
+            <li>Regular field scouting – early detection is key</li>
+            <li>Proper pruning and spacing for good airflow</li>
+            <li>Timely and complete harvesting</li>
+            <li>Consult local agricultural extension officers for spray programs</li>
+            <li>Keep farm records of outbreaks and treatments</li>
+        </ul>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

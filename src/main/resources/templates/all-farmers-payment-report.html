@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>All Farmers Payment Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body { background: linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; }
+        .card { max-width: 1300px; margin: 40px auto; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .header { background: #155724; color: white; padding: 30px; text-align: center; border-radius: 25px 25px 0 0; }
+        .table th { background: #155724; color: white; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="header">
+        <h1 class="display-4 fw-bold">ALL FARMERS PAYMENT REPORT</h1>
+        <p class="fs-3">Season: <strong th:text="${currentSeason.seasonName}">2025/2026</strong></p>
+    </div>
+
+    <div class="card-body p-5 bg-white">
+        <!-- PDF Export Button -->
+        <div class="text-end mb-4">
+            <a th:href="@{~/clerk/payment-report-pdf}" class="btn btn-danger btn-lg">
+                <i class="bi bi-file-earmark-pdf"></i> Export to PDF
+            </a>
+        </div>
+
+        <h2 class="text-center mb-4 text-success">Farmers Ranked by Net Payable</h2>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Farmer ID</th>
+                        <th>Name</th>
+                        <th>Cherry (kg)</th>
+                        <th>Parchment (kg)</th>
+                        <th>Gross Total</th>
+                        <th>Deducted (Loans)</th>
+                        <th>Net Payable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="entry,stat : ${report}">
+                        <td th:text="${stat.index + 1}">1</td>
+                        <td><strong th:text="${entry.farmer.farmerId}">001</strong></td>
+                        <td th:text="${entry.farmer.buildFullName()}">John Doe</td>
+                        <td th:text="${#numbers.formatInteger(entry.cherryKg, 0, 'COMMA')}">500</td>
+                        <td th:text="${#numbers.formatInteger(entry.parchmentKg, 0, 'COMMA')}">200</td>
+                        <td th:text="'KES ' + ${#numbers.formatInteger(entry.grossTotal, 0, 'COMMA')}">80,000</td>
+                        <td th:text="'KES ' + ${#numbers.formatInteger(entry.totalDeducted, 0, 'COMMA')}">30,000</td>
+                        <td class="text-success fw-bold" th:text="'KES ' + ${#numbers.formatInteger(entry.netPayable, 0, 'COMMA')}">50,000</td>
+                    </tr>
+
+                    <tr th:if="${report == null or #lists.isEmpty(report)}">
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <h4>No payments recorded this season</h4>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot class="table-success">
+                    <tr>
+                        <td colspan="7"><strong>GRAND TOTAL PAYABLE</strong></td>
+                        <td class="text-success fw-bold" th:text="'KES ' + ${#numbers.formatInteger(grandTotalPayable, 0, 'COMMA')}">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Back Button - FIXED with server-relative URL -->
+        <div class="text-center mt-5">
+            <a th:href="@{~/manager/dashboard}" class="btn btn-light btn-lg px-5 shadow-lg">
+                <i class="bi bi-arrow-left-circle me-2"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

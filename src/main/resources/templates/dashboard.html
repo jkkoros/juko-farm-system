@@ -1,77 +1,181 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" 
+<html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Juko Farm - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Juko Coffee Factory - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; }
-        .card { transition: all 0.3s; border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .card:hover { transform: translateY(-15px); box-shadow: 0 25px 50px rgba(0,0,0,0.5) !important; }
-        .icon { font-size: 70px; opacity: 0.9; }
-        .btn-lg { padding: 15px 40px; font-size: 1.3rem; border-radius: 15px; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .navbar-custom {
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+        .card-menu {
+            transition: all 0.3s;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+        }
+        .card-menu:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .icon {
+            font-size: 4rem;
+        }
+        .btn-action {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            margin: 10px;
+            min-width: 300px;
+        }
+        @media (max-width: 768px) {
+            .btn-action {
+                width: 100%;
+                min-width: auto;
+            }
+        }
     </style>
 </head>
 <body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white fw-bold fs-3" href="/dashboard">
+            <i class="bi bi-flower1"></i> JUKO COFFEE FACTORY
+        </a>
+        <div class="d-flex align-items-center text-white">
+            <span class="me-3">Welcome, <strong sec:authentication="name">User</strong></span>
+            <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
 <div class="container py-5">
-    <!-- HEADER -->
     <div class="text-center mb-5">
-        <h1 class="display-2 fw-bold">JUKO FARM SYSTEM</h1>
-        <p class="lead fs-3">Welcome back, <strong sec:authentication="name">User</strong>!</p>
+        <h1 class="display-4 fw-bold">JUKO COFFEE FACTORY</h1>
+        <p class="lead fs-3">Current Season: <strong th:text="${selectedSeason.seasonName}">2025/2026</strong></p>
+        <p class="fs-4 opacity-75">Quality Coffee • Strong Community • Sustainable Future</p>
     </div>
 
-    <!-- MENU CARDS -->
-    <div class="row g-5 justify-content-center">
+    <!-- MAIN ACTION CARDS -->
+    <div class="row justify-content-center g-4">
 
-        <!-- FARMS -->
+        <!-- 1. MANAGER TASKS -->
         <div class="col-lg-4 col-md-6">
-            <div class="card bg-white text-dark p-5 text-center shadow-lg">
-                <i class="bi bi-tree-fill text-success icon"></i>
-                <h2 class="mt-4 fw-bold">Farms</h2>
-                <p class="fs-4 text-muted">Manage all your farms</p>
-                <a th:href="@{/farms}" class="btn btn-success btn-lg px-5 mt-3">Go to Farms</a>
+            <div class="card card-menu shadow-lg">
+                <div class="card-body text-center p-5">
+                    <i class="bi bi-person-gear text-info icon"></i>
+                    <h3 class="mt-4 fw-bold">Manager Tasks</h3>
+                    <p class="lead">Register staff, view reports, manage operations</p>
+                    <a href="/manager/tasks" target="_blank" class="btn btn-info btn-lg w-100 mt-3 btn-action">
+                        <i class="bi bi-box-arrow-up-right me-2"></i> Open Manager Tasks (New Window)
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- CROPS -->
+        <!-- 2. CLERK TASKS -->
         <div class="col-lg-4 col-md-6">
-            <div class="card bg-white text-dark p-5 text-center shadow-lg">
-                <i class="bi bi-flower1 text-warning icon"></i>
-                <h2 class="mt-4 fw-bold">Crops</h2>
-                <p class="fs-4 text-muted">Track crops & harvests</p>
-                <a th:href="@{/crops}" class="btn btn-warning btn-lg px-5 mt-3 text-white">Go to Crops</a>
+            <div class="card card-menu shadow-lg">
+                <div class="card-body text-center p-5">
+                    <i class="bi bi-person-check-fill text-primary icon"></i>
+                    <h3 class="mt-4 fw-bold">Clerk Tasks</h3>
+                    <p class="lead">Record deliveries, loans, payments</p>
+                    <a href="/clerk/tasks" target="_blank" class="btn btn-primary btn-lg w-100 mt-3 btn-action">
+                        <i class="bi bi-box-arrow-up-right me-2"></i> Open Clerk Tasks (New Window)
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- CHERRY INTAKE — VISIBLE TO ALL USERS -->
+        <!-- 3. CLIENTS & FARMERS -->
         <div class="col-lg-4 col-md-6">
-            <div class="card bg-white text-dark p-5 text-center shadow-lg">
-                <i class="bi bi-truck text-danger icon"></i>
-                <h2 class="mt-4 fw-bold">Cherry Intake</h2>
-                <p class="fs-4 text-muted">Record coffee cherry deliveries</p>
-                <a th:href="@{/cherry}" class="btn btn-danger btn-lg px-5 mt-3">Cherry Recording</a>
+            <div class="card card-menu shadow-lg">
+                <div class="card-body text-center p-5">
+                    <i class="bi bi-people-fill text-warning icon"></i>
+                    <h3 class="mt-4 fw-bold">Clients & Farmers</h3>
+                    <p class="lead">View farmers, statements, payments</p>
+                    <a th:href="@{/farmers/list}" class="btn btn-warning btn-lg w-100 mt-3 btn-action">
+                        <i class="bi bi-list-ul me-2"></i> View Farmers List
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- ADMIN PANEL — ONLY FOR ADMIN -->
-        <div class="col-lg-4 col-md-6" sec:authorize="hasRole('ADMIN')">
-            <div class="card bg-white text-dark p-5 text-center shadow-lg">
-                <i class="bi bi-shield-lock-fill text-primary icon"></i>
-                <h2 class="mt-4 fw-bold">Admin Panel</h2>
-                <p class="fs-4 text-muted">Manage users & system</p>
-                <a th:href="@{/admin/users}" class="btn btn-primary btn-lg px-5 mt-3">Open Admin Panel</a>
+        <!-- 4. MANAGE FARMS -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-menu shadow-lg">
+                <div class="card-body text-center p-5">
+                    <i class="bi bi-tree-fill text-success icon"></i>
+                    <h3 class="mt-4 fw-bold">Manage Farms</h3>
+                    <p class="lead">Register and manage farm locations</p>
+                    <a th:href="@{/farms}" class="btn btn-success btn-lg w-100 mt-3 btn-action">
+                        <i class="bi bi-geo-alt me-2"></i> Manage Farms
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. MANAGE CROPS -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-menu shadow-lg">
+                <div class="card-body text-center p-5">
+                    <i class="bi bi-flower1 text-warning icon"></i>
+                    <h3 class="mt-4 fw-bold">Manage Crops</h3>
+                    <p class="lead">Register and track crop varieties</p>
+                    <a th:href="@{/crops}" class="btn btn-warning text-white btn-lg w-100 mt-3 btn-action">
+                        <i class="bi bi-seedling me-2"></i> Manage Crops
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. MANAGE COFFEE (NEW - DEDICATED COFFEE HUB) -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-menu shadow-lg">
+                <div class="card-body text-center p-5">
+                    <i class="bi bi-cup-straw text-danger icon"></i>
+                    <h3 class="mt-4 fw-bold">Manage Coffee</h3>
+                    <p class="lead">Varieties, nutrition, pruning, diseases, yields & quality</p>
+                    <a th:href="@{/coffee}" class="btn btn-danger btn-lg w-100 mt-3 btn-action">
+                        <i class="bi bi-flower2 me-2"></i> Manage Coffee
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. ALL FARMERS PAYMENT REPORT -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-menu shadow-lg">
+                <div class="card-body text-center p-5">
+                    <i class="bi bi-people text-success icon"></i>
+                    <h3 class="mt-4 fw-bold">All Farmers Payment Report</h3>
+                    <p class="lead">View net payable for all farmers</p>
+                    <a th:href="@{/clerk/payment-report}" class="btn btn-success btn-lg w-100 mt-3 btn-action">
+                        <i class="bi bi-file-earmark-bar-graph me-2"></i> View Report
+                    </a>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <!-- FOOTER -->
     <div class="text-center mt-5">
         <p class="fs-4 opacity-75">Your farm. Your future. Managed perfectly.</p>
-        <p class="text-white-50 small">© 2025 Juko Coffee Factory • All rights reserved</p>
+        <p class="text-white-50 mt-4">© 2025 Juko Coffee Factory • Kenya • All rights reserved</p>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

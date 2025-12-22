@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clerk Tasks - Juko Coffee Factory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .main-container {
+            width: 95%;
+            max-width: 1400px;
+            text-align: center;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .header .subtitle {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+        .header .season {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+        .header hr {
+            width: 40%;
+            margin: 15px auto;
+            opacity: 0.5;
+        }
+
+        /* Farmer Search Bar */
+        .search-bar {
+            max-width: 500px;
+            margin: 0 auto 30px auto;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            height: 55vh;
+            min-height: 380px;
+        }
+        .role-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .role-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .role-card i {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+        }
+        .role-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        .role-card p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .under-dev {
+            opacity: 0.6;
+        }
+
+        .back-btn {
+            margin-top: 30px;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.2rem; }
+            .header .subtitle { font-size: 1.4rem; }
+            .header .season { font-size: 1.2rem; }
+            .search-bar { max-width: 100%; padding: 0 15px; }
+            .card-grid { grid-template-columns: 1fr; height: auto; gap: 20px; }
+            .role-card { padding: 30px 15px; }
+            .role-card i { font-size: 3.8rem; }
+            .role-card h3 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <!-- HEADER -->
+    <div class="header">
+        <h1>CLERK TASKS</h1>
+        <p class="subtitle">Juko Coffee Factory</p>
+        <p class="season">Current Season: <strong th:text="${selectedSeason.seasonName}"></strong></p>
+        <hr>
+    </div>
+
+    <!-- FARMER SEARCH BAR -->
+    <div class="search-bar">
+        <form th:action="@{/clerk/cherry-intake}" method="get" class="input-group input-group-lg">
+            <input type="text" name="searchId" class="form-control" 
+                   placeholder="Quick Search Farmer by ID (e.g. F001)" 
+                   aria-label="Search farmer" />
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-search"></i> Search & Record Cherry
+            </button>
+        </form>
+        <small class="text-white-50 d-block mt-2">Enter Farmer ID to jump directly to Cherry Recording</small>
+    </div>
+
+    <!-- TASK CARDS -->
+    <div class="card-grid">
+
+        <!-- CHERRY RECORDING -->
+        <a th:href="@{/clerk/cherry-intake}" class="text-white text-decoration-none">
+            <div class="role-card">
+                <i class="bi bi-flower1 text-success"></i>
+                <h3>Cherry Recording</h3>
+                <p>Record cherry intake from farmers</p>
+            </div>
+        </a>
+
+        <!-- PARCHMENT RECORDING -->
+        <a th:href="@{/clerk/parchment-recording}" class="text-white text-decoration-none">
+    <div class="role-card">
+        <i class="bi bi-moisture text-warning"></i>
+        <h3>Parchment Recording</h3>
+        <p>Record wet/dry parchment received</p>
+    </div>
+</a>
+
+        <!-- FARM INPUTS LOAN -->
+        <a th:href="@{/clerk/farm-inputs-loan}" class="text-white text-decoration-none">
+    <div class="role-card">
+        <i class="bi bi-basket2-fill text-info"></i>
+        <h3>Farm Inputs Loan</h3>
+        <p>Issue and record farm inputs on loan</p>
+    </div>
+</a>
+
+    </div>
+
+    <!-- BACK BUTTON -->
+    <div class="back-btn">
+        <a th:href="@{/dashboard}" class="btn btn-light btn-lg px-5 shadow-lg">
+            <i class="bi bi-arrow-left-circle me-2"></i> Back to Main Dashboard
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

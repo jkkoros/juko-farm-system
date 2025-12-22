@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Coffee - Juko Coffee Factory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { 
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%); 
+            min-height: 100vh; 
+            color: white; 
+        }
+        .card-feature {
+            transition: all 0.3s;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: none;
+            height: 100%;
+        }
+        .card-feature:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .icon-large { font-size: 3.5rem; }
+        .btn-custom {
+            padding: 12px 24px;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg" style="background: rgba(0,0,0,0.3); backdrop-filter: blur(10px);">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white fw-bold fs-3" th:href="@{/dashboard}">
+            <i class="bi bi-cup-straw"></i> JUKO COFFEE FACTORY
+        </a>
+        <div class="d-flex align-items-center text-white">
+            <span class="me-3">Welcome, <strong sec:authentication="name">User</strong></span>
+            <a th:href="@{/dashboard}" class="btn btn-outline-light btn-sm">Back to Dashboard</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Manage Coffee</h1>
+        <p class="lead fs-3">Everything for high-quality coffee production</p>
+        <p class="fs-4 opacity-75">Ruiru 11 • Batian • SL28 • Nutrition • Pruning • Yields • Quality</p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- 1. Crop Varieties -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-feature shadow-lg text-center p-4">
+                <i class="bi bi-seedling text-success icon-large"></i>
+                <h4 class="mt-3">Crop Varieties</h4>
+                <p>Register and track coffee varieties on farms</p>
+                <a th:href="@{/crops}" class="btn btn-success btn-custom">
+                    Go to Crops →
+                </a>
+            </div>
+        </div>
+
+        <!-- 2. Nutrition & Pruning Schedule -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-feature shadow-lg text-center p-4">
+                <i class="bi bi-calendar3 text-warning icon-large"></i>
+                <h4 class="mt-3">Nutrition & Pruning Schedule</h4>
+                <p>Annual fertilizer plan, pruning calendar, current tasks</p>
+                <a th:href="@{/coffee/schedule}" class="btn btn-warning btn-custom text-white">
+                    View Schedule →
+                </a>
+            </div>
+        </div>
+
+        <!-- 3. Flowering Records & Yield Forecasting -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-feature shadow-lg text-center p-4">
+                <i class="bi bi-graph-up text-primary icon-large"></i>
+                <h4 class="mt-3">Flowering Records & Yield Forecasting</h4>
+                <p>Record flowering events, auto-predict harvest timing</p>
+                <a th:href="@{/coffee/yield}" class="btn btn-primary btn-custom">
+                    Forecast Yield →
+                </a>
+            </div>
+        </div>
+
+        <!-- 4. Pests & Diseases -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-feature shadow-lg text-center p-4">
+                <i class="bi bi-bug text-danger icon-large"></i>
+                <h4 class="mt-3">Pests & Diseases</h4>
+                <p>CBD, CLR, Berry Borer, Antestia – symptoms & control</p>
+                <a th:href="@{/coffee/diseases}" class="btn btn-danger btn-custom text-white">
+                    View Guide →
+                </a>
+            </div>
+        </div>
+
+        <!-- 5. Quality Tracking -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-feature shadow-lg text-center p-4">
+                <i class="bi bi-droplet text-info icon-large"></i>
+                <h4 class="mt-3">Quality Tracking</h4>
+                <p>Wet mill, drying, grading, cupping scores & notes</p>
+                <a th:href="@{/coffee/quality}" class="btn btn-info btn-custom">
+                    Track Quality →
+                </a>
+            </div>
+        </div>
+
+        <!-- 6. NEW: Record Cherry & Parchment (Clerk Tasks) -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-feature shadow-lg text-center p-4 border border-light border-3">
+                <i class="bi bi-truck text-success icon-large"></i>
+                <h4 class="mt-3">Record Cherry & Parchment</h4>
+                <p>Go to Clerk Tasks to record daily cherry intake and parchment processing</p>
+                <a th:href="@{/clerk/tasks}" class="btn btn-success btn-custom btn-lg">
+                    <i class="bi bi-journal-text me-2"></i> Open Clerk Tasks →
+                </a>
+            </div>
+        </div>
+        
+        <!-- 7. Coffee Expenses Management (NEW!) -->
+<div class="col-lg-4 col-md-6">
+    <div class="card card-feature shadow-lg text-center p-4">
+        <i class="bi bi-currency-exchange text-warning icon-large"></i>
+        <h4 class="mt-3">Coffee Expenses</h4>
+        <p>Track costs: pruning, weeding, picking, fertilizer, spraying, etc.</p>
+        <a th:href="@{/coffee/expenses}" class="btn btn-warning btn-custom text-dark">
+            Manage Expenses →
+        </a>
+    </div>
+</div>
+
+<!-- 8. Cherry Delivery Charts (NEW!) -->
+<div class="col-lg-4 col-md-6">
+    <div class="card card-feature shadow-lg text-center p-4">
+        <i class="bi bi-bar-chart-line text-success icon-large"></i>
+        <h4 class="mt-3">Cherry Delivery Charts</h4>
+        <p>Monthly, weekly & daily trends – monitor production patterns</p>
+        <a th:href="@{/coffee/delivery-charts}" class="btn btn-success btn-custom">
+            View Charts →
+        </a>
+    </div>
+</div>
+
+    </div>
+
+    <div class="text-center mt-5">
+        <p class="fs-4 opacity-75">Your coffee. Grown with knowledge, precision, and care.</p>
+        <p class="text-white-50 mt-4">© 2025 Juko Coffee Factory • Kenya • All rights reserved</p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -27,6 +27,12 @@ public class AdminController {
         model.addAttribute("users", users);
         return "admin/users";
     }
+    
+    @GetMapping("/admin/users")
+    public String clerksPanel(Model model) {
+        model.addAttribute("users", userRepository.findAll());
+        return "admin-users";
+    }
 
     @PostMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable Long id) {

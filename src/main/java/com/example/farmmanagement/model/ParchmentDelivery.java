@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "cherry_deliveries")
-public class CherryDelivery {
+public class ParchmentDelivery {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,18 +18,14 @@ public class CherryDelivery {
     private String farmerPhone;
 
     private double kilosToday;
-    private LocalDate deliveryDate = LocalDate.now();
     private double cumulativeKg;
+
+    private LocalDate deliveryDate = LocalDate.now();
 
     private String notes;
 
-    // NEW: Season relationship
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "season_id", nullable = false)
+    @ManyToOne
     private Season season;
-
-    // Default constructor
-    public CherryDelivery() {}
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -57,25 +52,15 @@ public class CherryDelivery {
     public double getKilosToday() { return kilosToday; }
     public void setKilosToday(double kilosToday) { this.kilosToday = kilosToday; }
 
-    public LocalDate getDeliveryDate() { return deliveryDate; }
-    public void setDeliveryDate(LocalDate deliveryDate) { this.deliveryDate = deliveryDate; }
-
     public double getCumulativeKg() { return cumulativeKg; }
     public void setCumulativeKg(double cumulativeKg) { this.cumulativeKg = cumulativeKg; }
+
+    public LocalDate getDeliveryDate() { return deliveryDate; }
+    public void setDeliveryDate(LocalDate deliveryDate) { this.deliveryDate = deliveryDate; }
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
 
-    // NEW: Season getters and setters
     public Season getSeason() { return season; }
     public void setSeason(Season season) { this.season = season; }
-
-    // Helper: Build full name (already in your Farmer class, but kept here for consistency)
-    public String buildFullName() {
-        StringBuilder sb = new StringBuilder();
-        if (surname != null) sb.append(surname).append(" ");
-        if (middleName != null && !middleName.isBlank()) sb.append(middleName).append(" ");
-        if (lastName != null) sb.append(lastName);
-        return sb.toString().trim();
-    }
 }

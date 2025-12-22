@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Farmer Card - Juko Coffee Factory</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: white; }
+        .card { width: 400px; margin: 0 auto; border: 5px solid #28a745; border-radius: 25px; padding: 40px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .logo { font-size: 2.5rem; font-weight: bold; color: #155724; }
+        .id { font-size: 5rem; font-weight: bold; color: #28a745; margin: 30px 0; }
+        .name { font-size: 2rem; margin: 20px 0; }
+        .phone { font-size: 1.4rem; color: #555; }
+        @media print { .no-print { display: none; } body { padding: 0; } }
+    </style>
+</head>
+<body>
+<div class="card" th:object="${farmer}">
+    <div class="logo">JUKO COFFEE FACTORY</div>
+    <p style="font-size:1.3rem;margin:20px 0;">Farmer Identity Card</p>
+    <div class="id" th:text="*{farmerId}">001</div>
+    <div class="name" th:text="*{buildFullName()}">John Doe</div>
+    <div class="phone" th:text="*{phone ?: 'No phone provided'}"></div>
+    <p style="margin-top:40px;font-size:1.2rem;">Please present this ID when delivering cherries</p>
+</div>
+
+<div class="no-print mt-5">
+    <button onclick="window.print()" class="btn btn-success btn-lg px-5">Print Card</button>
+    <button onclick="window.close()" class="btn btn-secondary btn-lg px-5 ms-3">Close</button>
+</div>
+</body>
+</html>

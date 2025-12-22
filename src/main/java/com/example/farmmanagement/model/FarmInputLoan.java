@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "cherry_deliveries")
-public class CherryDelivery {
+public class FarmInputLoan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,19 +17,19 @@ public class CherryDelivery {
     private String farmerName;
     private String farmerPhone;
 
-    private double kilosToday;
-    private LocalDate deliveryDate = LocalDate.now();
-    private double cumulativeKg;
+    private String itemName;        // e.g., Fertilizer, Seeds, Sprayer
+    private double quantity;
+    private double unitPrice;
+    private double totalCost;       // quantity * unitPrice
+
+    private double cumulativeDebt;  // total loan balance for this farmer
+
+    private LocalDate loanDate = LocalDate.now();
 
     private String notes;
 
-    // NEW: Season relationship
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "season_id", nullable = false)
+    @ManyToOne
     private Season season;
-
-    // Default constructor
-    public CherryDelivery() {}
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -54,28 +53,27 @@ public class CherryDelivery {
     public String getFarmerPhone() { return farmerPhone; }
     public void setFarmerPhone(String farmerPhone) { this.farmerPhone = farmerPhone; }
 
-    public double getKilosToday() { return kilosToday; }
-    public void setKilosToday(double kilosToday) { this.kilosToday = kilosToday; }
+    public String getItemName() { return itemName; }
+    public void setItemName(String itemName) { this.itemName = itemName; }
 
-    public LocalDate getDeliveryDate() { return deliveryDate; }
-    public void setDeliveryDate(LocalDate deliveryDate) { this.deliveryDate = deliveryDate; }
+    public double getQuantity() { return quantity; }
+    public void setQuantity(double quantity) { this.quantity = quantity; }
 
-    public double getCumulativeKg() { return cumulativeKg; }
-    public void setCumulativeKg(double cumulativeKg) { this.cumulativeKg = cumulativeKg; }
+    public double getUnitPrice() { return unitPrice; }
+    public void setUnitPrice(double unitPrice) { this.unitPrice = unitPrice; }
+
+    public double getTotalCost() { return totalCost; }
+    public void setTotalCost(double totalCost) { this.totalCost = totalCost; }
+
+    public double getCumulativeDebt() { return cumulativeDebt; }
+    public void setCumulativeDebt(double cumulativeDebt) { this.cumulativeDebt = cumulativeDebt; }
+
+    public LocalDate getLoanDate() { return loanDate; }
+    public void setLoanDate(LocalDate loanDate) { this.loanDate = loanDate; }
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
 
-    // NEW: Season getters and setters
     public Season getSeason() { return season; }
     public void setSeason(Season season) { this.season = season; }
-
-    // Helper: Build full name (already in your Farmer class, but kept here for consistency)
-    public String buildFullName() {
-        StringBuilder sb = new StringBuilder();
-        if (surname != null) sb.append(surname).append(" ");
-        if (middleName != null && !middleName.isBlank()) sb.append(middleName).append(" ");
-        if (lastName != null) sb.append(lastName);
-        return sb.toString().trim();
-    }
 }

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clients & Farmers - Juko Coffee Factory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .card { max-width: 1300px; margin: 40px auto; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .header { background: #721c24; color: white; padding: 30px; text-align: center; border-radius: 25px 25px 0 0; }
+        .header h1 { font-size: 2.8rem; }
+        .table th { background: #721c24; color: white; }
+        .action-btns .btn { margin: 3px; font-size: 0.9rem; }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.2rem; }
+            .action-btns .btn { width: 100%; margin-bottom: 8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="header">
+        <h1 class="display-4 fw-bold">CLIENTS & FARMERS</h1>
+        <p class="fs-3">Registered Farmers List</p>
+        <a th:href="@{/manager/dashboard}" class="btn btn-light btn-lg">
+            <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card-body p-5 bg-white text-dark">
+        <h2 class="text-center mb-4 text-success">All Registered Farmers</h2>
+
+        <!-- SEARCH BAR -->
+        <div class="row mb-4">
+            <div class="col-md-6 offset-md-3">
+                <form th:action="@{/farmers/all}" method="get" class="d-flex">
+                    <input type="text" name="search" th:value="${search}" 
+                           class="form-control form-control-lg me-2" 
+                           placeholder="Search by Farmer ID, Name or Phone..." />
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </form>
+                <small class="text-muted d-block text-center mt-2">
+                    Enter Farmer ID (e.g., 001) for exact match
+                </small>
+            </div>
+            <div class="col-md-3 text-end">
+                <a th:href="@{/farmers/all}" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-arrow-clockwise"></i> Clear
+                </a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-danger">
+                    <tr>
+                        <th>Farmer ID</th>
+                        <th>Full Name</th>
+                        <th>Phone</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="farmer : ${farmers}">
+                        <td><strong th:text="${farmer.farmerId}">N/A</strong></td>
+                        <td th:text="${farmer.buildFullName()}">N/A</td>
+                        <td th:text="${farmer.phone ?: '—'}">—</td>
+                        <td class="action-btns">
+                            <a th:href="@{/clerk/statement/{fid}(fid=${farmer.farmerId})}"
+                               class="btn btn-sm btn-primary">
+                                <i class="bi bi-file-text"></i> Loan Statement
+                            </a>
+                            <a th:href="@{/clerk/payment-statement/{fid}(fid=${farmer.farmerId})}"
+                               class="btn btn-sm btn-success">
+                                <i class="bi bi-cash-stack"></i> Payment Statement
+                            </a>
+                            <a th:href="@{/clerk/record-payment/{fid}(fid=${farmer.farmerId})}"
+                               class="btn btn-sm btn-warning">
+                                <i class="bi bi-cash-coin"></i> Record Payment
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${farmers == null or #lists.isEmpty(farmers)}">
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <h3 th:if="${search != null}">No farmers found for "<span th:text="${search}"></span>"</h3>
+                            <h3 th:if="${search == null}">No farmers registered yet</h3>
+                            <a th:href="@{/farmers/register}" class="btn btn-success btn-lg mt-3">
+                                <i class="bi bi-person-plus"></i> Register First Farmer
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-center mt-5">
+            <a th:href="@{/farmers/register}" class="btn btn-success btn-lg px-5">
+                <i class="bi bi-person-plus"></i> Add New Farmer
+            </a>
+            <a th:href="@{/clerk/tasks}" class="btn btn-danger btn-lg px-5 ms-3">
+                <i class="bi bi-box-arrow-in-right"></i> Clerk Tasks
+            </a>
+            <a th:href="@{/clerk/payment-report}" class="btn btn-info btn-lg px-5 ms-3">
+                <i class="bi bi-people me-2"></i> All Farmers Payment Report
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

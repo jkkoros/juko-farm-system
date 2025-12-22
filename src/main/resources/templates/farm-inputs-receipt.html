@@ -2,10 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Cherry Receipt - Juko Coffee Factory</title>
+    <title>Farm Inputs Loan Receipt - Juko Coffee Factory</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- JsBarcode CDN -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
         @media print {
@@ -20,33 +19,26 @@
             max-width: 600px;
             margin: 20px auto;
             padding: 20px;
-            border: 3px solid #28a745;
+            border: 3px solid #007bff;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         .header {
-            background: #28a745;
+            background: #007bff;
             color: white;
             padding: 20px;
             text-align: center;
             border-radius: 12px 12px 0 0;
             margin: -20px -20px 20px -20px;
         }
-        .header h1 {
-            font-size: 2rem;
-            margin: 0;
-            font-weight: bold;
-        }
-        .header h2 {
-            font-size: 1.4rem;
-            margin: 8px 0 0 0;
-        }
+        .header h1 { font-size: 2rem; margin: 0; font-weight: bold; }
+        .header h2 { font-size: 1.4rem; margin: 8px 0 0 0; }
         .receipt-info {
-            background: #d4edda;
+            background: #d1ecf1;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border-left: 5px solid #28a745;
+            border-left: 5px solid #007bff;
         }
         .details-table th {
             background: #f8f9fa;
@@ -55,17 +47,14 @@
             padding: 10px;
             font-weight: bold;
         }
-        .details-table td {
-            padding: 10px;
-            text-align: left;
-        }
+        .details-table td { padding: 10px; text-align: left; }
         .amount-highlight {
             font-size: 1.8rem;
             font-weight: bold;
-            color: #155724;
+            color: #0c5460;
             text-align: center;
             padding: 20px;
-            background: #e9f7ef;
+            background: #d1ecf1;
             border-radius: 10px;
             margin: 20px 0;
         }
@@ -73,7 +62,7 @@
             text-align: center;
             margin-top: 40px;
             padding-top: 20px;
-            border-top: 2px dashed #28a745;
+            border-top: 2px dashed #007bff;
             color: #666;
         }
         .signature {
@@ -89,20 +78,9 @@
             margin-top: 60px;
             font-style: italic;
         }
-        .barcode-container {
-            text-align: center;
-            margin: 30px 0;
-        }
-        .barcode-container svg {
-            max-width: 100%;
-            height: auto;
-        }
-        .barcode-label {
-            font-size: 1rem;
-            margin-top: 10px;
-            font-weight: bold;
-            color: #333;
-        }
+        .barcode-container { text-align: center; margin: 30px 0; }
+        .barcode-container svg { max-width: 100%; height: auto; }
+        .barcode-label { font-size: 1rem; margin-top: 10px; font-weight: bold; color: #333; }
     </style>
 </head>
 <body onload="window.print()">
@@ -111,23 +89,23 @@
     <!-- HEADER -->
     <div class="header">
         <h1>JUKO COFFEE FACTORY</h1>
-        <h2>CHERRY DELIVERY RECEIPT</h2>
-        <p class="mt-2">Fresh Cherry • Quality Processing</p>
+        <h2>FARM INPUTS LOAN RECEIPT</h2>
+        <p class="mt-2">Supporting Farmers with Quality Inputs</p>
     </div>
 
     <!-- RECEIPT INFO -->
     <div class="receipt-info">
         <div class="row">
             <div class="col-6">
-                <strong>Receipt No:</strong> <span th:text="${d.id}">000</span>
+                <strong>Receipt No:</strong> <span th:text="${l.id}">000</span>
             </div>
             <div class="col-6 text-end">
-                <strong>Date:</strong> <span th:text="${#temporals.format(d.deliveryDate, 'dd MMMM yyyy')}"></span>
+                <strong>Date:</strong> <span th:text="${#temporals.format(l.loanDate, 'dd MMMM yyyy')}"></span>
             </div>
         </div>
         <div class="row mt-2">
             <div class="col-12">
-                <strong>Season:</strong> <span th:text="${d.season.seasonName}">Current Season</span>
+                <strong>Season:</strong> <span th:text="${l.season.seasonName}">Current Season</span>
             </div>
         </div>
     </div>
@@ -135,49 +113,52 @@
     <!-- FARMER DETAILS -->
     <h4 class="mb-3"><i class="bi bi-person-fill"></i> Farmer Details</h4>
     <table class="table table-bordered details-table">
-        <tr><th>Farmer ID</th><td th:text="${d.farmerId}">F001</td></tr>
-        <tr><th>Full Name</th><td th:text="${d.farmerName}">John Doe</td></tr>
-        <tr><th>Phone</th><td th:text="${d.farmerPhone}">+256 700 000 000</td></tr>
+        <tr><th>Farmer ID</th><td th:text="${l.farmerId}">F001</td></tr>
+        <tr><th>Full Name</th><td th:text="${l.farmerName}">John Doe</td></tr>
+        <tr><th>Phone</th><td th:text="${l.farmerPhone}">+254 700 000 000</td></tr>
     </table>
 
-    <!-- DELIVERY DETAILS -->
-    <h4 class="mb-3 mt-4"><i class="bi bi-flower1"></i> Delivery Details</h4>
+    <!-- LOAN DETAILS -->
+    <h4 class="mb-3 mt-4"><i class="bi bi-basket2-fill"></i> Loan Details</h4>
     <table class="table table-bordered details-table">
-        <tr><th>Kg Delivered Today</th><td th:text="${d.kilosToday} + ' kg'">0.00 kg</td></tr>
-        <tr><th>Cumulative This Season</th><td th:text="${cumulative} + ' kg'">0.00 kg</td></tr>
-        <tr><th>Notes</th><td th:text="${d.notes ?: 'None'}">None</td></tr>
+        <tr><th>Item Issued</th><td th:text="${l.itemName}">Fertilizer</td></tr>
+        <tr><th>Quantity</th><td th:text="${l.quantity}"></td></tr>
+        <tr><th>Unit Price</th><td th:text="'KES ' + ${#numbers.formatInteger(l.unitPrice, 0, 'COMMA')}">0</td></tr>
+        <tr><th>Total Cost</th><td th:text="'KES ' + ${#numbers.formatInteger(l.totalCost, 0, 'COMMA')}">0</td></tr>
+        <tr><th>Cumulative Debt</th><td th:text="'KES ' + ${#numbers.formatInteger(l.cumulativeDebt, 0, 'COMMA')}">0</td></tr>
+        <tr><th>Notes</th><td th:text="${l.notes ?: 'None'}">None</td></tr>
     </table>
 
     <!-- HIGHLIGHTED AMOUNT -->
     <div class="amount-highlight">
-        <div>Today Received</div>
-        <div class="display-4" th:text="${d.kilosToday} + ' kg'">0.00 kg</div>
-        <div>of Fresh Cherry Coffee</div>
+        <div>Loan Amount</div>
+        <div class="display-4" th:text="'KES ' + ${#numbers.formatInteger(l.totalCost, 0, 'COMMA')}">0</div>
+        <div>for <span th:text="${l.itemName}">Item</span></div>
     </div>
 
     <!-- BARCODE -->
     <div class="barcode-container">
         <svg id="barcode"></svg>
-        <div class="barcode-label">Receipt ID: CHR-<span th:text="${d.id}">000</span></div>
+        <div class="barcode-label">Receipt ID: LOAN-<span th:text="${l.id}">000</span></div>
     </div>
 
     <!-- FOOTER -->
     <div class="footer">
-        <p><strong>Thank you for your delivery!</strong></p>
-        <p>We appreciate your fresh cherry contribution.</p>
-        <p class="mt-3">Juko Coffee Factory • Fresh • Fair • Sustainable</p>
+        <p><strong>Thank you for trusting Juko Coffee Factory!</strong></p>
+        <p>This loan will be repaid through future cherry/parchment deliveries.</p>
+        <p class="mt-3">Quality Inputs • Better Yields • Fair Partnership</p>
     </div>
 
     <!-- SIGNATURE LINES -->
     <div class="signature">
-        <div class="signature-line">Received By (Clerk)</div>
+        <div class="signature-line">Issued By (Clerk)</div>
         <div class="signature-line">Farmer's Signature / Thumbprint</div>
     </div>
 </div>
 
-<!-- PRINT & CLOSE BUTTONS (hidden when printing) -->
+<!-- PRINT & CLOSE -->
 <div class="text-center no-print mt-4">
-    <button onclick="window.print()" class="btn btn-success btn-lg px-5">
+    <button onclick="window.print()" class="btn btn-primary btn-lg px-5">
         <i class="bi bi-printer"></i> Print Receipt
     </button>
     <button onclick="window.close()" class="btn btn-secondary btn-lg px-5 ms-3">
@@ -185,11 +166,11 @@
     </button>
 </div>
 
-<!-- BARCODE GENERATION SCRIPT -->
+<!-- BARCODE SCRIPT -->
 <script th:inline="javascript">
     /*<![CDATA[*/
-    var deliveryId = /*[[${d.id}]]*/ 0;
-    JsBarcode("#barcode", "CHR-" + deliveryId, {
+    var loanId = /*[[${l.id}]]*/ 0;
+    JsBarcode("#barcode", "LOAN-" + loanId, {
         format: "CODE128",
         lineColor: "#000",
         width: 3,
@@ -201,14 +182,6 @@
     });
     /*]]>*/
 </script>
-
-<!-- LOAN REPAYMENT SECTION -->
-<th:block th:if="${repaymentMessage != null}">
-    <div class="alert alert-success text-center mt-4 py-4">
-        <h4><i class="bi bi-check-circle-fill"></i> Loan Repayment Applied</h4>
-        <p class="mb-0" th:text="${repaymentMessage}">Deduction applied</p>
-    </div>
-</th:block>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

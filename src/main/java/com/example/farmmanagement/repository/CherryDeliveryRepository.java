@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface CherryDeliveryRepository extends JpaRepository<CherryDelivery, Long> {
@@ -20,4 +21,12 @@ public interface CherryDeliveryRepository extends JpaRepository<CherryDelivery, 
 
     @Query("SELECT COALESCE(SUM(d.kilosToday), 0) FROM CherryDelivery d WHERE d.farmerId = :farmerId")
     double getTotalKilosByFarmerId(@Param("farmerId") String farmerId);
+    
+    boolean existsByFarmerIdAndDeliveryDateAndSeason(String farmerId, LocalDate deliveryDate, Season season);
+
+ // Add this method
+    boolean existsByFarmerIdAndDeliveryDateAndSeasonAndIdNot(
+            String farmerId, LocalDate deliveryDate, Season season, Long excludedId);
+
+    List<CherryDelivery> findByFarmerIdAndSeasonOrderByDeliveryDateAsc(String farmerId, Season season);
 }

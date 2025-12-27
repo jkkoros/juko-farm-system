@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/clerk/cherry-intake")
@@ -65,15 +66,17 @@ public class CherryIntakeController {
         return "cherry-intake";
     }
 
-    // RECORD DELIVERY + LOAN REPAYMENT DEDUCTION
+ // RECORD DELIVERY + ONE-PER-DAY VALIDATION (FIXED)
     @PostMapping("/record")
     public String recordDelivery(@ModelAttribute CherryDelivery delivery, RedirectAttributes ra) {
         delivery.setSeason(seasonService.getCurrentSeason());
+
         Farmer farmer = farmerRepo.findByFarmerId(delivery.getFarmerId());
         if (farmer == null) {
             ra.addFlashAttribute("error", "Farmer not found!");
             return "redirect:/clerk/cherry-intake";
         }
+
         if (delivery.getFarmerName() == null || delivery.getFarmerName().isBlank()) {
             delivery.setFarmerName(farmer.buildFullName());
             delivery.setSurname(farmer.getSurname());
@@ -82,20 +85,33 @@ public class CherryIntakeController {
             delivery.setFarmerPhone(farmer.getPhone());
         }
 
-        double previous = deliveryRepo.getTotalKilosByFarmerId(delivery.getFarmerId());
-        delivery.setCumulativeKg(previous + delivery.getKilosToday());
+        // === FIXED: Use the actual delivery date from the form, not today ===
+        LocalDate deliveryDate = delivery.getDeliveryDate(); // This comes from the form
+
+        boolean alreadyDeliveredOnThisDate = deliveryRepo.existsByFarmerIdAndDeliveryDateAndSeason(
+                delivery.getFarmerId(), deliveryDate, delivery.getSeason());
+
+        if (alreadyDeliveredOnThisDate) {
+            ra.addFlashAttribute("error",
+                    "Delivery already recorded on " +
+                    deliveryDate.format(java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy")) +
+                    " for farmer " + delivery.getFarmerId() + " - " + delivery.getFarmerName() +
+                    ". Only one delivery per day is allowed.");
+            return "redirect:/clerk/cherry-intake";
+        }
+
+        // Calculate cumulative (previous total + today's kilos)
+        double previousCumulative = deliveryRepo.getTotalKilosByFarmerId(delivery.getFarmerId());
+        delivery.setCumulativeKg(previousCumulative + delivery.getKilosToday());
+
         deliveryRepo.save(delivery);
 
-        // === LOAN REPAYMENT DEDUCTION LOGIC (CONFIGURABLE) ===
+        // Loan deduction logic (unchanged)
         double outstandingDebt = loanRepo.getOutstandingDebtByFarmerId(delivery.getFarmerId());
         if (outstandingDebt > 0) {
-            // Cherry price per kg in KES (adjust as needed)
             double cherryPricePerKg = 80.0;
             double deliveryValue = delivery.getKilosToday() * cherryPricePerKg;
-
-            // Get configurable deduction percentage from SettingsService
-            double deductionPercent = settingsService.getLoanDeductionPercent() / 100.0; // e.g., 20% → 0.20
-
+            double deductionPercent = settingsService.getLoanDeductionPercent() / 100.0;
             double possibleDeduction = deliveryValue * deductionPercent;
             double actualDeduction = Math.min(possibleDeduction, outstandingDebt);
 
@@ -117,7 +133,10 @@ public class CherryIntakeController {
             }
         }
 
-        ra.addFlashAttribute("successMessage", "Delivery recorded successfully!");
+        ra.addFlashAttribute("successMessage", "Delivery recorded successfully for " +
+                deliveryDate.format(java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy")) +
+                "! Farmer cumulative: " + String.format("%,.2f", delivery.getCumulativeKg()) + " kg");
+
         return "redirect:/clerk/cherry-intake";
     }
 
@@ -157,6 +176,134 @@ public class CherryIntakeController {
 
         model.addAttribute("transfers", transfers);
         return "cherry-transfer";
+    }
+    
+    @GetMapping("/farmer-cumulative")
+    @ResponseBody
+    public Map<String, Double> getFarmerCumulative(
+            @RequestParam String farmerId,
+            @RequestParam(required = false) String seasonName) {
+
+        Season season = (seasonName != null && !seasonName.isEmpty())
+                ? seasonService.getSeasonByName(seasonName)
+                : seasonService.getCurrentSeason();
+
+        double cumulative = deliveryRepo.getTotalKilosByFarmerId(farmerId);
+        return Map.of("cumulativeKg", cumulative);
+    }
+    
+ // LOAD EDIT FORM
+    @GetMapping("/edit/{id}")
+    public String editDeliveryForm(@PathVariable Long id, Model model, RedirectAttributes ra) {
+        CherryDelivery delivery = deliveryRepo.findById(id).orElse(null);
+        if (delivery == null) {
+            ra.addFlashAttribute("error", "Delivery record not found!");
+            return "redirect:/clerk/cherry-intake";
+        }
+
+        // Pre-fill the form with existing data
+        model.addAttribute("delivery", delivery);
+        model.addAttribute("editMode", true); // To show "Update" button
+
+        // Load common data (same as main page)
+        Season selectedSeason = delivery.getSeason();
+        List<CherryDelivery> deliveries = deliveryRepo.findBySeasonOrderByIdDesc(selectedSeason);
+
+        model.addAttribute("deliveries", deliveries);
+        model.addAttribute("selectedSeason", selectedSeason);
+        model.addAttribute("allSeasons", seasonService.getAllSeasons());
+        model.addAttribute("totalToday", deliveryRepo.getTotalKilosBySeason(selectedSeason));
+        model.addAttribute("farmersToday", deliveryRepo.getUniqueFarmersBySeason(selectedSeason));
+
+        return "cherry-intake"; // Reuse same template
+    }
+
+    // UPDATE DELIVERY
+    @PostMapping("/update/{id}")
+    public String updateDelivery(@PathVariable Long id,
+                                 @ModelAttribute CherryDelivery updatedDelivery,
+                                 RedirectAttributes ra) {
+        CherryDelivery existing = deliveryRepo.findById(id).orElse(null);
+        if (existing == null) {
+            ra.addFlashAttribute("error", "Delivery record not found!");
+            return "redirect:/clerk/cherry-intake";
+        }
+
+        // Check for duplicate on the (possibly new) delivery date
+        LocalDate newDate = updatedDelivery.getDeliveryDate();
+        boolean duplicate = deliveryRepo.existsByFarmerIdAndDeliveryDateAndSeasonAndIdNot(
+                existing.getFarmerId(), newDate, existing.getSeason(), id);
+
+        if (duplicate) {
+            ra.addFlashAttribute("error",
+                    "Another delivery already exists on " +
+                    newDate.format(java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy")) +
+                    " for this farmer. Only one per day allowed.");
+            return "redirect:/clerk/cherry-intake/edit/" + id;
+        }
+
+        // Recalculate cumulative: subtract old kilos, add new kilos
+        double oldKilos = existing.getKilosToday();
+        double newKilos = updatedDelivery.getKilosToday();
+
+        double currentTotalForFarmer = deliveryRepo.getTotalKilosByFarmerId(existing.getFarmerId());
+        double newCumulative = currentTotalForFarmer - oldKilos + newKilos;
+
+        // Update fields
+        existing.setKilosToday(newKilos);
+        existing.setDeliveryDate(newDate);
+        existing.setNotes(updatedDelivery.getNotes());
+        existing.setCumulativeKg(newCumulative);
+
+        deliveryRepo.save(existing);
+
+        // Loan recalculation (optional – only if price/deduction rules changed)
+        // You can extend this later if needed
+
+        ra.addFlashAttribute("successMessage",
+                "Delivery updated successfully! New cumulative: " +
+                String.format("%,.2f", newCumulative) + " kg");
+
+        return "redirect:/clerk/cherry-intake";
+    }
+    
+    @PostMapping("/delete/{id}")
+    public String deleteDelivery(@PathVariable Long id, RedirectAttributes ra) {
+        CherryDelivery delivery = deliveryRepo.findById(id).orElse(null);
+        if (delivery == null) {
+            ra.addFlashAttribute("error", "Delivery record not found!");
+            return "redirect:/clerk/cherry-intake";
+        }
+
+        String farmerId = delivery.getFarmerId();
+        String farmerName = delivery.getFarmerName();
+        double deletedKg = delivery.getKilosToday();
+        Season season = delivery.getSeason();
+
+        // Step 1: Delete the delivery
+        deliveryRepo.delete(delivery);
+
+        // Step 2: Recalculate cumulativeKg for ALL remaining deliveries of this farmer in this season
+        List<CherryDelivery> remainingDeliveries = deliveryRepo.findByFarmerIdAndSeasonOrderByDeliveryDateAsc(farmerId, season);
+
+        double runningTotal = 0.0;
+        for (CherryDelivery d : remainingDeliveries) {
+            runningTotal += d.getKilosToday();
+            d.setCumulativeKg(runningTotal);
+        }
+
+        // Bulk save (efficient)
+        if (!remainingDeliveries.isEmpty()) {
+            deliveryRepo.saveAll(remainingDeliveries);
+        }
+
+        // Success message
+        ra.addFlashAttribute("successMessage",
+                "Delivery deleted successfully! Removed " + String.format("%,.2f", deletedKg) +
+                " kg from " + farmerId + " - " + farmerName +
+                ". Cumulative totals updated for the farmer.");
+
+        return "redirect:/clerk/cherry-intake";
     }
 
     // PROCESS TRANSFER

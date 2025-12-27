@@ -3,108 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Juko Coffee Factory - Cherry Recording</title>
+    <title>Juko Coffee Factory - Cherry Intake</title>
+
+    <!-- === PWA Meta Tags for Installability === -->
+    <meta name="theme-color" content="#28a745">
+    <meta name="description" content="Record coffee cherry deliveries - Juko Coffee Factory">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Cherry Intake">
+
+    <!-- Icons (create these PNG files in static/images/) -->
+    <link rel="icon" href="/images/icon-192.png" sizes="192x192" type="image/png">
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    <link rel="manifest" href="/manifest.json">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- IndexedDB library for offline queue -->
+    <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
+
     <style>
         body {
-            background: #f8f9fa;
+            background: #f0f4f8;
             font-family: 'Segoe UI', sans-serif;
-            padding: 10px 0;
+            padding: 15px 0;
         }
         .main-container {
-            max-width: 1300px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
             overflow: hidden;
         }
         .header {
-            background: #28a745;
+            background: linear-gradient(135deg, #28a745, #198c36);
             color: white;
-            padding: 30px 20px;
+            padding: 40px 20px;
             text-align: center;
         }
-        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
-        .header h2 { font-size: 1.8rem; margin-bottom: 10px; }
-        .header h4 { font-size: 1.2rem; opacity: 0.9; }
+        .header h1 { font-size: 2.8rem; margin-bottom: 10px; font-weight: 800; }
+        .header h2 { font-size: 1.9rem; margin-bottom: 15px; }
+        .header h4 { font-size: 1.3rem; opacity: 0.95; }
 
         .season-bar {
             background: #d4edda;
             padding: 20px;
-            border-bottom: 4px solid #28a745;
+            border-bottom: 5px solid #28a745;
         }
-        .season-bar h3 { margin: 0; font-size: 1.4rem; }
-        .season-bar select { min-width: 200px; }
+        .season-bar h3 { margin: 0; font-size: 1.5rem; }
 
         .content-padding {
-            padding: 30px 20px;
+            padding: 35px 25px;
         }
 
         .panel {
             background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
         }
 
         .stats-panel {
-            background: #e9ecef;
+            background: #e9f7ef;
+            border-left: 6px solid #28a745;
         }
 
         .total-panel {
-            background: #d4edda;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
             text-align: center;
-            padding: 25px;
-            border-radius: 15px;
-            font-size: 1.6rem;
+            padding: 30px;
+            border-radius: 18px;
+            font-size: 1.8rem;
             font-weight: bold;
             color: #155724;
         }
 
-        .btn-search {
-            height: 58px;
+        #searchResults .result-item {
+            padding: 14px 18px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        #searchResults .result-item:hover {
+            background-color: #f0f8f0;
+        }
+        #searchResults .no-results {
+            padding: 18px;
+            text-align: center;
+            color: #6c757d;
         }
 
-        /* Responsive adjustments */
+        .edited-row { background-color: #fff8e1 !important; }
+
+        /* Offline notice */
+        .offline-notice {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #dc3545;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1050;
+            display: none;
+        }
+
         @media (max-width: 992px) {
-            .header h1 { font-size: 2.2rem; }
-            .header h2 { font-size: 1.6rem; }
-            .content-padding { padding: 20px 15px; }
+            .header h1 { font-size: 2.4rem; }
+            .header h2 { font-size: 1.7rem; }
+            .content-padding { padding: 25px 15px; }
         }
-
         @media (max-width: 768px) {
-            .season-bar .btn { 
-                width: 100%; 
-                margin-bottom: 10px; 
-            }
-            .season-bar .text-md-end { 
-                text-align: left !important; 
-                margin-top: 15px; 
-            }
-            .header h1 { font-size: 1.9rem; }
-            .header h2 { font-size: 1.4rem; }
+            .season-bar .btn { width: 100%; margin-bottom: 12px; }
+            .header h1 { font-size: 2.1rem; }
         }
-
         @media (max-width: 576px) {
-            .header { padding: 25px 15px; }
+            .header { padding: 30px 15px; }
             .panel { padding: 20px 15px; }
         }
     </style>
 </head>
 <body>
 
+<!-- Offline Notice -->
+<div id="offlineNotice" class="offline-notice">
+    <i class="bi bi-wifi-off me-2"></i> Offline Mode - Deliveries saved and will sync later
+</div>
+
 <div class="main-container">
     <!-- HEADER -->
     <div class="header">
         <h1 class="fw-bold">JUKO COFFEE FACTORY</h1>
-        <h2>CHERRY RECORDING SECTION</h2>
+        <h2 th:text="${editMode} ? 'EDIT CHERRY DELIVERY' : 'CHERRY INTAKE'">CHERRY INTAKE</h2>
         <h4>Today: <span th:text="${#temporals.format(#temporals.createNow(), 'dd MMMM yyyy')}"></span></h4>
     </div>
 
-    <!-- SEASON & BACK BUTTONS -->
+    <!-- SEASON BAR -->
     <div class="season-bar">
         <div class="container-fluid">
             <div class="row align-items-center">
@@ -123,14 +163,14 @@
                 </div>
                 <div class="col-lg-4 col-12 text-lg-end text-start mt-3 mt-lg-0">
                     <a href="/clerk/tasks" class="btn btn-primary btn-lg me-2">
-                        <i class="bi bi-arrow-left-circle me-2"></i> Back to Clerk Tasks
+                        <i class="bi bi-arrow-left-circle me-2"></i> Back to Tasks
                     </a>
                     <a th:href="@{/dashboard}" class="btn btn-outline-dark btn-lg">
                         <i class="bi bi-house-door-fill me-2"></i> Dashboard
                     </a>
                     <div class="mt-3">
                         <small class="text-muted">
-                            Period: 
+                            Period:
                             <strong th:text="${#temporals.format(selectedSeason.startDate, 'dd MMM yyyy')}"></strong> -
                             <strong th:text="${#temporals.format(selectedSeason.endDate, 'dd MMM yyyy')}"></strong>
                         </small>
@@ -147,9 +187,9 @@
             <strong th:text="${successMessage}"></strong>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-        <div th:if="${notFound}" class="alert alert-danger alert-dismissible fade show">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            Farmer with ID "<strong th:text="${searchedId}"></strong>" not found!
+        <div th:if="${repaymentMessage}" class="alert alert-info alert-dismissible fade show">
+            <i class="bi bi-cash-coin me-2"></i>
+            <strong th:text="${repaymentMessage}"></strong>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
@@ -165,37 +205,52 @@
             <!-- LEFT: FORM + STATS -->
             <div class="col-lg-5 col-12">
                 <div class="panel">
-                    <h3 class="text-success mb-4"><i class="bi bi-truck me-2"></i>Record Cherry Delivery</h3>
+                    <h3 class="text-success mb-4">
+                        <i class="bi bi-truck me-2"></i>
+                        <span th:text="${editMode} ? 'Edit Delivery' : 'Record New Delivery'"></span>
+                    </h3>
 
-                    <!-- SEARCH FARMER -->
-                    <form th:action="@{/clerk/cherry-intake}" method="get" class="mb-4">
-                        <div class="input-group">
-                            <input type="text" name="searchId" class="form-control form-control-lg"
-                                   placeholder="Enter Farmer ID" th:value="${param.searchId}" required />
-                            <input type="hidden" name="seasonName" th:value="${selectedSeason.seasonName}" />
-                            <button type="submit" class="btn btn-primary btn-search">
-                                <i class="bi bi-search"></i> Search
-                            </button>
+                    <!-- AUTOCOMPLETE SEARCH -->
+                    <div class="mb-4" th:unless="${editMode}">
+                        <label class="fw-bold">Search Farmer (ID, Name or Phone)</label>
+                        <div class="position-relative">
+                            <input type="text" id="farmerSearchInput" class="form-control form-control-lg"
+                                   placeholder="Type to search..." autocomplete="off" />
+                            <div id="searchResults"
+                                 class="position-absolute top-100 start-0 end-0 bg-white border border-secondary mt-1 rounded shadow-lg"
+                                 style="z-index: 1000; max-height: 420px; overflow-y: auto; display: none;">
+                            </div>
                         </div>
-                    </form>
+                        <small class="text-muted">Minimum 2 characters</small>
+                    </div>
 
-                    <!-- RECORD FORM -->
-                    <form th:action="@{/clerk/cherry-intake/record}" th:object="${delivery}" method="post">
+                    <!-- FORM -->
+                    <form id="deliveryForm" th:action="${editMode} ? @{/clerk/cherry-intake/update/{id}(id=${delivery.id})} : @{/clerk/cherry-intake/record}"
+                          th:object="${delivery}" method="post">
                         <input type="hidden" name="seasonName" th:value="${selectedSeason.seasonName}" />
+
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="fw-bold">Farmer ID *</label>
-                                <input type="text" th:field="*{farmerId}" class="form-control form-control-lg" required />
+                                <input type="text" id="farmerId" th:field="*{farmerId}" class="form-control form-control-lg"
+                                       th:readonly="${editMode}" required />
                             </div>
-                            <div class="col-md-4 col-12"><label>Surname</label><input type="text" th:field="*{surname}" class="form-control" readonly /></div>
-                            <div class="col-md-4 col-12"><label>Middle</label><input type="text" th:field="*{middleName}" class="form-control" readonly /></div>
-                            <div class="col-md-4 col-12"><label>Last</label><input type="text" th:field="*{lastName}" class="form-control" readonly /></div>
-                            <div class="col-12"><label>Full Name</label><input type="text" th:field="*{farmerName}" class="form-control" readonly /></div>
-                            <div class="col-12"><label>Phone</label><input type="text" th:field="*{farmerPhone}" class="form-control" readonly /></div>
+                            <div class="col-md-4 col-12"><label>Surname</label><input type="text" id="surname" th:field="*{surname}" class="form-control" readonly /></div>
+                            <div class="col-md-4 col-12"><label>Middle</label><input type="text" id="middleName" th:field="*{middleName}" class="form-control" readonly /></div>
+                            <div class="col-md-4 col-12"><label>Last</label><input type="text" id="lastName" th:field="*{lastName}" class="form-control" readonly /></div>
+                            <div class="col-12"><label>Full Name</label><input type="text" id="farmerName" th:field="*{farmerName}" class="form-control" readonly /></div>
+                            <div class="col-12"><label>Phone</label><input type="text" id="farmerPhone" th:field="*{farmerPhone}" class="form-control" readonly /></div>
+
+                            <div class="col-12 mt-4" id="cumulativeSection" style="display: none;">
+                                <div class="alert alert-info py-3 text-center border border-success">
+                                    <strong>This farmer's total delivered this season:</strong><br>
+                                    <span id="currentCumulative" class="fs-3 fw-bold text-success">0.00</span> kg
+                                </div>
+                            </div>
 
                             <div class="col-12">
                                 <label class="fw-bold text-success">Kg Delivered Today *</label>
-                                <input type="number" step="0.01" min="0" th:field="*{kilosToday}"
+                                <input type="number" step="0.01" min="0.01" id="kilosToday" th:field="*{kilosToday}"
                                        class="form-control form-control-lg" placeholder="e.g. 89.5" required />
                             </div>
 
@@ -210,80 +265,356 @@
                             </div>
                         </div>
 
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-success btn-lg px-5">
-                                <i class="bi bi-save me-2"></i> Record Delivery
+                        <div class="text-center mt-5">
+                            <button type="submit"
+                                    class="btn btn-lg px-5 fw-bold"
+                                    th:class="${editMode} ? 'btn-warning' : 'btn-success'"
+                                    th:text="${editMode} ? 'Update Delivery' : 'Record Delivery'">
+                                <i class="bi me-2" th:class="${editMode} ? 'bi-pencil-square' : 'bi-save'"></i>
                             </button>
-                            <button type="reset" class="btn btn-secondary btn-lg px-5 ms-3">
-                                <i class="bi bi-eraser me-2"></i> Clear
-                            </button>
+                            <a th:href="@{/clerk/cherry-intake}" class="btn btn-secondary btn-lg px-5 ms-3 fw-bold">
+                                <i class="bi bi-x-circle me-2"></i>
+                                <span th:text="${editMode} ? 'Cancel' : 'Clear Form'"></span>
+                            </a>
                         </div>
                     </form>
                 </div>
 
-                <div class="panel stats-panel mt-4">
-                    <h4 class="text-center mb-3">Season Summary</h4>
+                <div class="panel stats-panel">
+                    <h4 class="text-center mb-4 text-success fw-bold">Season Summary</h4>
                     <div class="row text-center mb-4">
-                        <div class="col"><strong>Total Kg:</strong> <span class="text-success fs-3" th:text="${totalToday}">0</span></div>
-                        <div class="col"><strong>Farmers:</strong> <span class="text-primary fs-3" th:text="${farmersToday}">0</span></div>
+                        <div class="col-6"><strong>Total Kg</strong><br><span class="text-success fs-2 fw-bold" th:text="${#numbers.formatDecimal(totalToday, 0, 2)}">0.00</span></div>
+                        <div class="col-6"><strong>Farmers</strong><br><span class="text-primary fs-2 fw-bold" th:text="${farmersToday}">0</span></div>
                     </div>
                     <div class="text-center">
-                        <a th:href="@{/clerk/cherry-intake/transfer}" class="btn btn-warning btn-lg">
+                        <a th:href="@{/clerk/cherry-intake/transfer}" class="btn btn-warning btn-lg fw-bold">
                             <i class="bi bi-arrow-left-right me-2"></i> Transfer Kg
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT: TABLE + TOTAL -->
+            <!-- RIGHT: TABLE + FILTER -->
             <div class="col-lg-7 col-12">
                 <div class="panel">
-                    <h3 class="text-success mb-4">Recent Deliveries - <span th:text="${selectedSeason.seasonName}"></span></h3>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-success mb-0">Recent Deliveries - <span th:text="${selectedSeason.seasonName}"></span></h3>
+                        <div class="input-group" style="width: 320px;">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" id="filterFarmerId" class="form-control form-control-lg" placeholder="Filter by Farmer ID" aria-label="Filter by Farmer ID" />
+                            <button class="btn btn-outline-secondary btn-lg" type="button" id="clearFilter" title="Clear filter">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover">
+                        <table class="table table-striped table-hover align-middle" id="deliveriesTable">
                             <thead class="table-success">
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Farmer</th>
+                                    <th>#</th>
+                                    <th>Farmer ID</th>
+                                    <th>Farmer Name</th>
                                     <th>Kg Today</th>
-                                    <th>Cumulative</th>
+                                    <th>Cumulative<br><small>(Season)</small></th>
                                     <th>Date</th>
                                     <th>Notes</th>
-                                    <th>Receipt</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="d : ${deliveries}">
+                                <tr th:each="d,stat : ${deliveries}"
+                                    th:classappend="${param.edited == d.id ? 'edited-row' : ''}"
+                                    th:data-farmer-id="${d.farmerId}"
+                                    th:id="'row-' + ${d.id}">
+                                    <td th:text="${stat.count}"></td>
                                     <td><strong th:text="${d.farmerId}"></strong></td>
-                                    <td th:text="${d.surname + ' ' + (d.middleName ?: '') + ' ' + d.lastName}"></td>
-                                    <td th:text="${d.kilosToday}"></td>
-                                    <td><strong th:text="${d.cumulativeKg}"></strong></td>
+                                    <td th:text="${d.farmerName}"></td>
+                                    <td th:text="${#numbers.formatDecimal(d.kilosToday, 0, 2)}"></td>
+                                    <td><strong th:text="${#numbers.formatDecimal(d.cumulativeKg, 0, 2)}"></strong> kg</td>
                                     <td th:text="${#temporals.format(d.deliveryDate, 'dd MMM yyyy')}"></td>
                                     <td th:text="${d.notes ?: '-'}"></td>
                                     <td>
                                         <a th:href="@{/clerk/cherry-intake/receipt/{id}(id=${d.id})}" target="_blank"
-                                           class="btn btn-sm btn-outline-primary">
+                                           class="btn btn-sm btn-outline-primary me-1" title="Print Receipt">
                                             <i class="bi bi-printer"></i>
                                         </a>
+                                        <a th:href="@{/clerk/cherry-intake/edit/{id}(id=${d.id})}"
+                                           class="btn btn-sm btn-outline-warning me-1" title="Edit">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                th:data-id="${d.id}"
+                                                th:data-farmer="${d.farmerId + ' - ' + d.farmerName}"
+                                                th:data-date="${#temporals.format(d.deliveryDate, 'dd MMMM yyyy')}"
+                                                th:data-kg="${#numbers.formatDecimal(d.kilosToday, 0, 2)}"
+                                                title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
+                                <tr id="noResultsRow" style="display: none;">
+                                    <td colspan="8" class="text-center py-5 text-muted fs-5">No deliveries match the filter</td>
+                                </tr>
                                 <tr th:if="${#lists.isEmpty(deliveries)}">
-                                    <td colspan="7" class="text-center py-5 text-muted">No deliveries recorded yet</td>
+                                    <td colspan="8" class="text-center py-5 text-muted fs-5">No deliveries recorded yet for this season</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <div class="total-panel">
-                    <i class="bi bi-trophy me-2"></i>
-                    Total Cherry This Season: <span th:text="${totalToday}">0.00</span> kg
+                <div class="total-panel shadow-lg">
+                    <i class="bi bi-trophy fs-1 me-3"></i>
+                    Total Cherry This Season: <span th:text="${#numbers.formatDecimal(totalToday, 0, 2)}">0.00</span> kg
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="lead">Are you sure you want to <strong>permanently delete</strong> this delivery?</p>
+                <div class="bg-light p-3 rounded">
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Farmer:</strong> <span id="deleteFarmer"></span></li>
+                        <li><strong>Date:</strong> <span id="deleteDate"></span></li>
+                        <li><strong>Kg:</strong> <span id="deleteKg"></span> kg</li>
+                    </ul>
+                </div>
+                <div class="alert alert-warning mt-3 small">
+                    <i class="bi bi-info-circle me-2"></i>
+                    This action will reduce the farmer's cumulative total and cannot be undone.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" th:action="@{/clerk/cherry-intake/delete/{id}(id=0)}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger fw-bold">Yes, Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ==============================================
+    // PWA & Offline Support
+    // ==============================================
+
+    // Show offline notice when connection is lost
+    const offlineNotice = document.getElementById('offlineNotice');
+    window.addEventListener('online', () => {
+        offlineNotice.style.display = 'none';
+    });
+    window.addEventListener('offline', () => {
+        offlineNotice.style.display = 'block';
+    });
+
+    // Register Service Worker for installability & offline caching
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registered!', reg))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        });
+    }
+
+    // IndexedDB for offline deliveries queue
+    const dbPromise = idb.openDB('JukoCherryIntake', 1, {
+        upgrade(db) {
+            db.createObjectStore('pendingDeliveries', { autoIncrement: true });
+        }
+    });
+
+    // Intercept form submit - save to IndexedDB if offline
+    document.getElementById('deliveryForm').addEventListener('submit', async function(e) {
+        if (!navigator.onLine) {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const delivery = Object.fromEntries(formData.entries());
+
+            const db = await dbPromise;
+            await db.add('pendingDeliveries', delivery);
+
+            alert('Delivery saved offline! It will be automatically sent when you are back online.');
+            e.target.reset();
+        }
+    });
+
+    // Auto-sync pending deliveries when online
+    window.addEventListener('online', async () => {
+        const db = await dbPromise;
+        const tx = db.transaction('pendingDeliveries', 'readwrite');
+        const store = tx.objectStore('pendingDeliveries');
+        const pending = await store.getAll();
+
+        for (const delivery of pending) {
+            try {
+                const response = await fetch('/clerk/cherry-intake/record', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(delivery)
+                });
+
+                if (response.ok) {
+                    await store.delete(delivery.id);
+                    console.log('Synced offline delivery successfully');
+                }
+            } catch (err) {
+                console.error('Sync failed for delivery:', err);
+            }
+        }
+    });
+
+    // ==============================================
+    // Existing Autocomplete, Cumulative, Filter, Modal Logic
+    // ==============================================
+
+    const searchInput = document.getElementById('farmerSearchInput');
+    const resultsBox = document.getElementById('searchResults');
+    const cumulativeSection = document.getElementById('cumulativeSection');
+    const currentCumulative = document.getElementById('currentCumulative');
+
+    // Autocomplete for new delivery
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            if (query.length < 2) {
+                resultsBox.style.display = 'none';
+                return;
+            }
+
+            fetch(`/farmers/api/search?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsBox.innerHTML = '';
+                    if (data.length === 0) {
+                        resultsBox.innerHTML = '<div class="no-results">No farmers found</div>';
+                        resultsBox.style.display = 'block';
+                        return;
+                    }
+
+                    data.forEach(farmer => {
+                        const item = document.createElement('div');
+                        item.className = 'result-item';
+                        item.innerHTML = `
+                            <strong>${farmer.farmerId}</strong> -
+                            ${farmer.fullName}
+                            <small class="text-muted">(${farmer.phone || 'No phone'})</small>
+                        `;
+
+                        item.addEventListener('click', () => {
+                            document.getElementById('farmerId').value = farmer.farmerId;
+                            document.getElementById('surname').value = farmer.surname || '';
+                            document.getElementById('middleName').value = farmer.middleName || '';
+                            document.getElementById('lastName').value = farmer.lastName || '';
+                            document.getElementById('farmerName').value = farmer.fullName;
+                            document.getElementById('farmerPhone').value = farmer.phone || '';
+
+                            searchInput.value = `${farmer.farmerId} - ${farmer.fullName}`;
+                            resultsBox.style.display = 'none';
+
+                            cumulativeSection.style.display = 'block';
+                            currentCumulative.textContent = 'Loading...';
+                            const seasonName = "[[${selectedSeason.seasonName}]]";
+                            fetch(`/clerk/cherry-intake/farmer-cumulative?farmerId=${encodeURIComponent(farmer.farmerId)}&seasonName=${encodeURIComponent(seasonName)}`)
+                                .then(r => r.json())
+                                .then(d => currentCumulative.textContent = d.cumulativeKg.toFixed(2))
+                                .catch(() => currentCumulative.textContent = 'Error');
+
+                            document.getElementById('kilosToday').focus();
+                        });
+
+                        resultsBox.appendChild(item);
+                    });
+
+                    resultsBox.style.display = 'block';
+                })
+                .catch(() => {
+                    resultsBox.innerHTML = '<div class="no-results text-danger">Error loading results</div>';
+                    resultsBox.style.display = 'block';
+                });
+        });
+
+        document.addEventListener('click', e => {
+            if (!searchInput.contains(e.target) && !resultsBox.contains(e.target)) {
+                resultsBox.style.display = 'none';
+            }
+        });
+    }
+
+    // Load cumulative in edit mode
+    if (document.getElementById('farmerId').value && cumulativeSection) {
+        cumulativeSection.style.display = 'block';
+        currentCumulative.textContent = 'Loading...';
+        const seasonName = "[[${selectedSeason.seasonName}]]";
+        const farmerId = document.getElementById('farmerId').value;
+        fetch(`/clerk/cherry-intake/farmer-cumulative?farmerId=${encodeURIComponent(farmerId)}&seasonName=${encodeURIComponent(seasonName)}`)
+            .then(r => r.json())
+            .then(d => currentCumulative.textContent = d.cumulativeKg.toFixed(2))
+            .catch(() => currentCumulative.textContent = 'Error');
+    }
+
+    // Filter table by Farmer ID
+    const filterInput = document.getElementById('filterFarmerId');
+    const clearFilterBtn = document.getElementById('clearFilter');
+    const tableRows = document.querySelectorAll('#deliveriesTable tbody tr[data-farmer-id]');
+    const noResultsRow = document.getElementById('noResultsRow');
+
+    function applyFilter() {
+        const filterValue = filterInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        tableRows.forEach(row => {
+            const farmerId = row.getAttribute('data-farmer-id').toLowerCase();
+            if (filterValue === '' || farmerId.includes(filterValue)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        noResultsRow.style.display = (visibleCount === 0 && filterValue !== '') ? '' : 'none';
+    }
+
+    filterInput.addEventListener('input', applyFilter);
+    clearFilterBtn.addEventListener('click', () => {
+        filterInput.value = '';
+        applyFilter();
+    });
+
+    // Initial filter on page load
+    applyFilter();
+
+    // Delete modal
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        const farmer = button.getAttribute('data-farmer');
+        const date = button.getAttribute('data-date');
+        const kg = button.getAttribute('data-kg');
+
+        document.getElementById('deleteFarmer').textContent = farmer;
+        document.getElementById('deleteDate').textContent = date;
+        document.getElementById('deleteKg').textContent = kg;
+
+        document.getElementById('deleteForm').action = `/clerk/cherry-intake/delete/${id}`;
+    });
+</script>
+
 </body>
 </html>

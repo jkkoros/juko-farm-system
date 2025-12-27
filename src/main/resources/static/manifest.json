@@ -1,0 +1,24 @@
+{
+  "name": "Juko Cherry Intake",
+  "short_name": "Cherry Intake",
+  "description": "Record coffee cherry deliveries offline",
+  "start_url": "/clerk/cherry-intake",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#28a745",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

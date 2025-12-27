@@ -149,6 +149,17 @@
     <artifactId>okhttp</artifactId>
     <version>4.12.0</version>
 </dependency>
+
+<!-- Spring WebFlux (includes WebClient) -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-webflux</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+</dependency>
 		
 	</dependencies>
 

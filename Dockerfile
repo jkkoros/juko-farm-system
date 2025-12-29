@@ -1,21 +1,21 @@
-# Use Eclipse Temurin OpenJDK 17 - stable and recommended
+# Use Eclipse Temurin OpenJDK 17
 FROM eclipse-temurin:17-jdk
 
 # Set working directory
 WORKDIR /app
 
-# Copy Maven config files
+# Copy Maven files
 COPY pom.xml ./
 COPY mvnw ./
 COPY .mvn ./.mvn
 
-# Make mvnw executable (this is the key fix)
+# Make mvnw executable
 RUN chmod +x ./mvnw
 
-# Download dependencies (cached layer)
+# Download dependencies
 RUN ./mvnw dependency:go-offline -B
 
-# Copy source code
+# Copy source
 COPY src ./src
 
 # Build the app
@@ -24,5 +24,5 @@ RUN ./mvnw clean package -DskipTests
 # Expose port (your app uses 8085)
 EXPOSE 8085
 
-# Run the JAR (adjust if your JAR name is specific)
-CMD ["java", "-jar", "target/*.jar"]
+# Run the EXACT JAR name (from your log)
+CMD ["java", "-jar", "target/JukoFarm-Management-0.0.1-SNAPSHOT.jar"]

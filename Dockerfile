@@ -1,25 +1,28 @@
-# Use Eclipse Temurin (Adoptium) OpenJDK 17 - stable and recommended for Spring Boot
+# Use Eclipse Temurin OpenJDK 17 - stable and recommended
 FROM eclipse-temurin:17-jdk
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy Maven files first (for caching dependencies)
+# Copy Maven config files
 COPY pom.xml ./
 COPY mvnw ./
 COPY .mvn ./.mvn
 
-# Download dependencies (this layer caches well)
+# Make mvnw executable (this is the key fix)
+RUN chmod +x ./mvnw
+
+# Download dependencies (cached layer)
 RUN ./mvnw dependency:go-offline -B
 
-# Copy the rest of the source code
+# Copy source code
 COPY src ./src
 
-# Build the app (skip tests to speed up)
+# Build the app
 RUN ./mvnw clean package -DskipTests
 
-# Expose your app's port (change 8085 if different)
+# Expose port (your app uses 8085)
 EXPOSE 8085
 
-# Run the JAR file (adjust if your JAR has a specific name)
+# Run the JAR (adjust if your JAR name is specific)
 CMD ["java", "-jar", "target/*.jar"]

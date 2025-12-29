@@ -1,5 +1,5 @@
-# Use official OpenJDK 17 (good for most Spring Boot apps)
-FROM openjdk:17-jdk-slim
+# Use Eclipse Temurin (Adoptium) OpenJDK 17 - stable and recommended for Spring Boot
+FROM eclipse-temurin:17-jdk
 
 # Set working directory inside the container
 WORKDIR /app
@@ -15,11 +15,11 @@ RUN ./mvnw dependency:go-offline -B
 # Copy the rest of the source code
 COPY src ./src
 
-# Build the app (skip tests to speed up build)
+# Build the app (skip tests to speed up)
 RUN ./mvnw clean package -DskipTests
 
-# Expose the port your app uses (change 8085 if different)
+# Expose your app's port (change 8085 if different)
 EXPOSE 8085
 
-# Run the JAR file
+# Run the JAR file (adjust if your JAR has a specific name)
 CMD ["java", "-jar", "target/*.jar"]
